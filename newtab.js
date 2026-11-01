@@ -161,66 +161,34 @@
     }
   });
 
-  const QUOTES = [
-    '"Simplicity is the ultimate sophistication." — Leonardo da Vinci',
-    '"Make it work, make it right, make it fast." — Kent Beck',
-    '"Perfection is achieved not when there is nothing more to add, but when there is nothing left to take away."',
-    '"The only way to go fast, is to go well." — Robert C. Martin',
-    '"Focus on being productive instead of busy." — Tim Ferriss',
-    '"Design is not just what it looks like and feels like. Design is how it works." — Steve Jobs'
-  ];
+  // --- Dynamic Per-Tab Quotes (Donghua, Anime, Philosophy, Science, Online) ---
+  const quotesEngine = window.CaelestiaQuotes;
 
-  function updateClock() {
-    const now = new Date();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    if (clockTimeEl) {
-      clockTimeEl.textContent = `${hours}:${minutes}`;
-    }
-
-    const h = now.getHours();
-    let salutation = 'Good Day';
-    if (h >= 5 && h < 12) {
-      salutation = 'Good Morning';
-    } else if (h >= 12 && h < 17) {
-      salutation = 'Good Afternoon';
-    } else if (h >= 17 && h < 22) {
-      salutation = 'Good Evening';
-    } else {
-      salutation = 'Good Night';
-    }
-
-    const user = getUsername();
-    if (greetingSalutationEl) {
-      greetingSalutationEl.textContent = salutation;
-    }
-    if (greetingUsernameEl && !greetingUsernameEl.classList.contains('editing')) {
-      greetingUsernameEl.textContent = user;
-    } else if (greetingTextEl && !greetingSalutationEl) {
-      greetingTextEl.textContent = `${salutation}, ${user}`;
-    }
-
-    if (dateTextEl) {
-      dateTextEl.textContent = now.toLocaleDateString(undefined, {
-        weekday: 'long',
-        month: 'long',
-        day: 'numeric',
-      });
-    }
-  }
-
-  function updateDailyQuote() {
+  async function updateTabQuote() {
     if (!dailyQuoteEl) return;
-    const now = new Date();
-    const start = new Date(now.getFullYear(), 0, 0);
-    const diff = now - start;
-    const oneDay = 1000 * 60 * 60 * 24;
-    const dayOfYear = Math.floor(diff / oneDay);
-    dailyQuoteEl.textContent = QUOTES[dayOfYear % QUOTES.length];
+
+    // 1. Immediately display a random curated quote from our extensive offline database
+    // (ensures 0ms instant display without layout shift)
+    if (quotesEngine?.getRandomLocalQuote) {
+      const initialQuote = quotesEngine.getRandomLocalQuote();
+      dailyQuoteEl.textContent = quotesEngine.formatQuote(initialQuote);
+    }
+
+    // 2. 50% chance to fetch an online quote from public APIs when online
+    if (Math.random() > 0.5 && quotesEngine?.fetchOnlineQuote) {
+      try {
+        const onlineQuote = await quotesEngine.fetchOnlineQuote();
+        if (onlineQuote && onlineQuote.quote && dailyQuoteEl) {
+          dailyQuoteEl.textContent = quotesEngine.formatQuote(onlineQuote);
+        }
+      } catch (err) {
+        // Fallback remains the initial curated quote
+      }
+    }
   }
 
   updateClock();
-  updateDailyQuote();
+  updateTabQuote();
   setInterval(updateClock, 1000);
 
   // --- 3. Live Weather Widget ---
