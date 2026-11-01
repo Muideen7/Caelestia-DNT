@@ -231,6 +231,32 @@ body {
   font-weight: 500;
 }
 
+.greeting-username {
+  cursor: pointer;
+  border-bottom: 1.5px dashed color-mix(in srgb, var(--md-sys-color-primary) 60%, transparent);
+  padding-bottom: 1px;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.greeting-username:hover {
+  color: var(--md-sys-color-primary);
+  border-bottom-style: solid;
+  border-bottom-color: var(--md-sys-color-primary);
+}
+
+.greeting-name-input {
+  background: var(--md-sys-color-surface-container-high);
+  color: var(--md-sys-color-primary);
+  border: 1px solid var(--md-sys-color-primary);
+  border-radius: var(--radius-sm);
+  padding: 2px 8px;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 500;
+  outline: none;
+  width: 140px;
+}
+
 .greeting-divider {
   opacity: 0.4;
 }

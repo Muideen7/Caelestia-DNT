@@ -35,6 +35,11 @@
         themeNameEl.textContent = `Caelestia ${name}`;
       }
 
+      if (theme.username && !localStorage.getItem('caelestia_username')) {
+        localStorage.setItem('caelestia_username', theme.username);
+        if (typeof updateClock === 'function') updateClock();
+      }
+
       const isTransparent = theme.transparency !== false;
       root.setAttribute('data-transparency', isTransparent ? 'true' : 'false');
 
@@ -57,8 +62,64 @@
   // --- 2. Live Digital Clock, Greeting, and Daily Quote ---
   const clockTimeEl = document.getElementById('clockTime');
   const greetingTextEl = document.getElementById('greetingText');
+  const greetingSalutationEl = document.getElementById('greetingSalutation');
+  const greetingUsernameEl = document.getElementById('greetingUsername');
   const dateTextEl = document.getElementById('dateText');
   const dailyQuoteEl = document.getElementById('dailyQuote');
+
+  function getUsername() {
+    return localStorage.getItem('caelestia_username') || 'FrontendGeek';
+  }
+
+  function setUsername(name) {
+    const clean = (name || '').trim();
+    if (clean) {
+      localStorage.setItem('caelestia_username', clean);
+    }
+    updateClock();
+  }
+
+  if (greetingUsernameEl) {
+    greetingUsernameEl.addEventListener('click', () => {
+      if (greetingUsernameEl.classList.contains('editing')) return;
+      const current = getUsername();
+      greetingUsernameEl.classList.add('editing');
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'greeting-name-input';
+      input.value = current;
+      input.maxLength = 28;
+
+      const finish = (save) => {
+        greetingUsernameEl.classList.remove('editing');
+        if (save) {
+          setUsername(input.value || current);
+        } else {
+          updateClock();
+        }
+        claimFocus();
+      };
+
+      input.addEventListener('keydown', (e) => {
+        e.stopPropagation();
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          finish(true);
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          finish(false);
+        }
+      });
+
+      input.addEventListener('blur', () => finish(true));
+
+      greetingUsernameEl.innerHTML = '';
+      greetingUsernameEl.appendChild(input);
+      input.focus();
+      input.select();
+    });
+  }
 
   const QUOTES = [
     '"Simplicity is the ultimate sophistication." — Leonardo da Vinci',
@@ -78,18 +139,26 @@
     }
 
     const h = now.getHours();
-    let greeting = 'Good Day';
+    let salutation = 'Good Day';
     if (h >= 5 && h < 12) {
-      greeting = 'Good Morning';
+      salutation = 'Good Morning';
     } else if (h >= 12 && h < 17) {
-      greeting = 'Good Afternoon';
+      salutation = 'Good Afternoon';
     } else if (h >= 17 && h < 22) {
-      greeting = 'Good Evening';
+      salutation = 'Good Evening';
     } else {
-      greeting = 'Good Night';
+      salutation = 'Good Night';
     }
 
-    if (greetingTextEl) greetingTextEl.textContent = greeting;
+    const user = getUsername();
+    if (greetingSalutationEl) {
+      greetingSalutationEl.textContent = salutation;
+    }
+    if (greetingUsernameEl && !greetingUsernameEl.classList.contains('editing')) {
+      greetingUsernameEl.textContent = user;
+    } else if (greetingTextEl && !greetingSalutationEl) {
+      greetingTextEl.textContent = `${salutation}, ${user}`;
+    }
 
     if (dateTextEl) {
       dateTextEl.textContent = now.toLocaleDateString(undefined, {
