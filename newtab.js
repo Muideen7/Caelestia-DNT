@@ -265,6 +265,17 @@
     }
   }
 
+  function stopNavigationLoading() {
+    if (topProgressBar) topProgressBar.classList.remove('active');
+    if (loadingToast) loadingToast.classList.remove('active');
+    if (searchSubmitIcon) {
+      searchSubmitIcon.textContent = 'arrow_forward';
+      searchSubmitIcon.classList.remove('spin');
+    }
+    const submitBtn = searchForm?.querySelector('.search-submit-btn');
+    if (submitBtn) submitBtn.classList.remove('loading');
+  }
+
   // --- 7. Browser Quick Menu Modal (Shortcut: P or Button) ---
   const btnBrowserMenu = document.getElementById('btnBrowserMenu');
   const browserMenuModal = document.getElementById('browserMenuModal');
@@ -288,24 +299,38 @@
 
   function openInternalUrl(url, label) {
     startNavigationLoading(label, null);
-    if (chrome?.runtime?.sendMessage) {
-      chrome.runtime.sendMessage({ action: 'openUrl', url });
-    } else if (chrome?.tabs?.create) {
-      chrome.tabs.create({ url });
-    } else {
-      window.location.href = url;
+    try {
+      if (chrome?.tabs?.create) {
+        chrome.tabs.create({ url });
+      } else if (chrome?.runtime?.sendMessage) {
+        chrome.runtime.sendMessage({ action: 'openUrl', url });
+      } else {
+        window.open(url, '_blank');
+      }
+    } catch (e) {
+      if (chrome?.runtime?.sendMessage) {
+        chrome.runtime.sendMessage({ action: 'openUrl', url });
+      }
     }
+    setTimeout(stopNavigationLoading, 400);
   }
 
   function openBrowserSettings() {
     startNavigationLoading('Settings', null);
-    if (chrome?.runtime?.sendMessage) {
-      chrome.runtime.sendMessage({ action: 'openSettings' });
-    } else if (chrome?.tabs?.create) {
-      chrome.tabs.create({ url: 'chrome://settings/' });
-    } else {
-      window.location.href = 'chrome://settings/';
+    try {
+      if (chrome?.tabs?.create) {
+        chrome.tabs.create({ url: 'chrome://settings' });
+      } else if (chrome?.runtime?.sendMessage) {
+        chrome.runtime.sendMessage({ action: 'openSettings' });
+      } else {
+        window.open('chrome://settings', '_blank');
+      }
+    } catch (e) {
+      if (chrome?.runtime?.sendMessage) {
+        chrome.runtime.sendMessage({ action: 'openSettings' });
+      }
     }
+    setTimeout(stopNavigationLoading, 400);
   }
 
   document.querySelectorAll('.menu-item').forEach((item) => {
@@ -405,12 +430,12 @@
     if (browserMenuModal?.classList.contains('open')) {
       const k = e.key.toLowerCase();
       const routeMap = {
-        h: { url: 'chrome://history/', label: 'History' },
-        d: { url: 'chrome://downloads/', label: 'Downloads' },
-        b: { url: 'chrome://bookmarks/', label: 'Bookmarks' },
-        e: { url: 'chrome://extensions/', label: 'Extensions' },
-        s: { url: 'chrome://settings/', label: 'Settings' },
-        ',': { url: 'chrome://settings/', label: 'Settings' }
+        h: { url: 'chrome://history', label: 'History' },
+        d: { url: 'chrome://downloads', label: 'Downloads' },
+        b: { url: 'chrome://bookmarks', label: 'Bookmarks' },
+        e: { url: 'chrome://extensions', label: 'Extensions' },
+        s: { url: 'chrome://settings', label: 'Settings' },
+        ',': { url: 'chrome://settings', label: 'Settings' }
       };
       if (routeMap[k] || routeMap[e.key]) {
         const item = routeMap[k] || routeMap[e.key];
@@ -466,22 +491,22 @@
     // Direct Browser Navigation Keys (H, D, B, E)
     if (key === 'h') {
       e.preventDefault();
-      openInternalUrl('chrome://history/', 'History');
+      openInternalUrl('chrome://history', 'History');
       return;
     }
     if (key === 'd') {
       e.preventDefault();
-      openInternalUrl('chrome://downloads/', 'Downloads');
+      openInternalUrl('chrome://downloads', 'Downloads');
       return;
     }
     if (key === 'b') {
       e.preventDefault();
-      openInternalUrl('chrome://bookmarks/', 'Bookmarks');
+      openInternalUrl('chrome://bookmarks', 'Bookmarks');
       return;
     }
     if (key === 'e') {
       e.preventDefault();
-      openInternalUrl('chrome://extensions/', 'Extensions');
+      openInternalUrl('chrome://extensions', 'Extensions');
       return;
     }
   });

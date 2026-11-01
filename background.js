@@ -21,44 +21,34 @@ chrome.runtime.onInstalled.addListener(syncThemeToStorage);
 chrome.runtime.onStartup.addListener(syncThemeToStorage);
 setInterval(syncThemeToStorage, 3000);
 
+// Ensure window always stays in normal state (never edge-to-edge fullscreen)
+// This guarantees it respects Caelestia Shell's default single app size and tiling gaps
+function enforceNormalWindowState(win) {
+  if (win && win.state === 'fullscreen') {
+    chrome.windows.update(win.id, { state: 'normal' });
+  }
+}
+
+chrome.windows.onCreated.addListener(enforceNormalWindowState);
+chrome.runtime.onStartup.addListener(() => {
+  chrome.windows.getAll((windows) => {
+    windows.forEach(enforceNormalWindowState);
+  });
+});
+
 // Message listener for browser actions and navigation
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  const winId = sender.tab?.windowId;
-
   if (msg.action === 'openSettings') {
-    const targetUrl = 'chrome://settings/';
-    if (sender.tab?.id) {
-      chrome.tabs.update(sender.tab.id, { url: targetUrl }).catch(() => {
-        chrome.tabs.create({ url: targetUrl });
-      });
-    } else {
-      chrome.tabs.create({ url: targetUrl });
-    }
-    sendResponse({ status: 'settings_opened' });
+    chrome.tabs.create({ url: 'chrome://settings' }, () => {
+      sendResponse({ status: 'settings_opened' });
+    });
     return true;
   }
 
   if (msg.action === 'openUrl' && msg.url) {
-    const targetUrl = msg.url.endsWith('/') || msg.url.includes('?') ? msg.url : `${msg.url}/`;
-    if (sender.tab?.id) {
-      chrome.tabs.update(sender.tab.id, { url: targetUrl }).catch(() => {
-        chrome.tabs.create({ url: targetUrl });
-      });
-    } else {
-      chrome.tabs.create({ url: targetUrl });
-    }
-    sendResponse({ status: 'url_opened' });
+    chrome.tabs.create({ url: msg.url }, () => {
+      sendResponse({ status: 'url_opened' });
+    });
     return true;
-  }
-
-  if (msg.action === 'toggleFullscreen') {
-    if (winId) {
-      chrome.windows.get(winId, (win) => {
-        const nextState = win.state === 'fullscreen' ? 'normal' : 'fullscreen';
-        chrome.windows.update(winId, { state: nextState });
-        sendResponse({ state: nextState });
-      });
-      return true;
-    }
   }
 });
