@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Tab</title>
+  <!-- Google Fonts: Outfit & Material Symbols -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="newtab.css">
+</head>
+<body>
+  <!-- Wallpaper & Dynamic Glassmorphism Background -->
+  <div class="wallpaper-bg" id="wallpaperBg"></div>
+  <div class="wallpaper-overlay" id="wallpaperOverlay"></div>
+  <div class="background-glow"></div>
+
+  <!-- Top Bar: Weather & Collapsible Navigation Shortcuts -->
+  <header class="top-bar">
+    <div class="top-left-group">
+      <!-- Live Weather Widget -->
+      <div class="weather-pill" id="weatherPill" title="Click to refresh weather">
+        <span class="material-symbols-rounded icon" id="weatherIcon">wb_sunny</span>
+        <span class="weather-temp" id="weatherTemp">--°C</span>
+        <span class="weather-loc" id="weatherLoc">Locating...</span>
+      </div>
+    </div>
+
+    <div class="top-right-group">
+      <!-- Collapsible Nav Shortcuts Bar -->
+      <div class="nav-hints" id="navHintsContainer" title="Keyboard navigation shortcuts">
+        <span class="hint-item"><kbd>Ctrl</kbd> + <kbd>1-9</kbd> Tabs</span>
+        <span class="hint-item"><kbd>Ctrl</kbd> + <kbd>Tab</kbd> Next</span>
+        <span class="hint-item"><kbd>Ctrl</kbd> + <kbd>W</kbd> Close</span>
+      </div>
+
+      <!-- Toggle Button to Hide/Show Shortcuts -->
+      <button class="icon-btn" id="btnToggleHints" title="Toggle navigation shortcuts bar (Shortcut: K)">
+        <span class="material-symbols-rounded" id="iconToggleHints">keyboard</span>
+      </button>
+
+      <!-- Zen / Focus Mode Button -->
+      <button class="icon-btn" id="btnZenToggle" title="Toggle Zen Mode (Shortcut: Z)">
+        <span class="material-symbols-rounded">filter_center_focus</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="main-container" id="mainContainer">
+    <!-- Clock & Greeting Widget -->
+    <section class="clock-widget" id="clockWidget">
+      <div class="clock-time" id="clockTime">00:00</div>
+      <div class="greeting-row">
+        <span class="greeting-text" id="greetingText">Good Day</span>
+        <span class="greeting-divider">•</span>
+        <span class="date-text" id="dateText">Sunday, November 1</span>
+      </div>
+      <!-- Daily Thought / Quote -->
+      <div class="daily-quote" id="dailyQuote">"Simplicity is the ultimate sophistication."</div>
+    </section>
+
+    <!-- Floating Material 3 Search Bar -->
+    <section class="search-section" id="searchSection">
+      <form class="search-bar" id="searchForm">
+        <button type="button" class="search-engine-btn" id="btnEngineSelect" title="Click to switch search engine">
+          <span class="material-symbols-rounded" id="engineIcon">search</span>
+          <span class="engine-name" id="engineName">Google</span>
+          <span class="material-symbols-rounded arrow">expand_more</span>
+        </button>
+
+        <input type="text" class="search-input" id="searchInput" placeholder="Search the web or type a URL..." autocomplete="off" autofocus>
+
+        <button type="submit" class="search-submit-btn" title="Search">
+          <span class="material-symbols-rounded">arrow_forward</span>
+        </button>
+      </form>
+
+      <!-- Engine Dropdown -->
+      <div class="engine-dropdown" id="engineDropdown">
+        <div class="engine-opt" data-engine="google">
+          <span class="material-symbols-rounded">search</span> Google
+        </div>
+        <div class="engine-opt" data-engine="brave">
+          <span class="material-symbols-rounded">shield</span> Brave Search
+        </div>
+        <div class="engine-opt" data-engine="duckduckgo">
+          <span class="material-symbols-rounded">travel_explore</span> DuckDuckGo
+        </div>
+        <div class="engine-opt" data-engine="youtube">
+          <span class="material-symbols-rounded">smart_display</span> YouTube
+        </div>
+        <div class="engine-opt" data-engine="wikipedia">
+          <span class="material-symbols-rounded">menu_book</span> Wikipedia
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Shortcuts Grid -->
+    <section class="shortcuts-section" id="shortcutsSection">
+      <div class="shortcuts-grid" id="shortcutsGrid">
+        <!-- Rendered via JS -->
+      </div>
+    </section>
+
+    <!-- MNYT Widgets Row -->
+    <section class="widgets-row" id="widgetsRow">
+      <!-- Quick Tasks / Todo Widget -->
+      <div class="widget-card todo-widget">
+        <div class="widget-header">
+          <span class="material-symbols-rounded icon">check_circle</span>
+          <span class="title">Quick Tasks</span>
+          <button class="add-task-btn" id="btnAddTask" title="Add Task">
+            <span class="material-symbols-rounded">add</span>
+          </button>
+        </div>
+        <div class="todo-list" id="todoList">
+          <!-- Rendered via JS -->
+        </div>
+        <div class="todo-input-row" id="todoInputRow" style="display: none;">
+          <input type="text" id="todoInput" placeholder="New task..." autocomplete="off">
+          <button id="btnSaveTask">Save</button>
+        </div>
+      </div>
+
+      <!-- Scratchpad Note Widget -->
+      <div class="widget-card note-widget">
+        <div class="widget-header">
+          <span class="material-symbols-rounded icon">edit_note</span>
+          <span class="title">Scratchpad</span>
+          <span class="note-status" id="noteStatus">Auto-saved</span>
+        </div>
+        <textarea class="note-textarea" id="noteArea" placeholder="Jot down quick thoughts, links, commands..."></textarea>
+      </div>
+    </section>
+  </main>
+
+  <!-- Add Shortcut Modal Dialog -->
+  <div class="modal-overlay" id="shortcutModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Add Quick Link</h3>
+        <button class="close-btn" id="btnCloseModal">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <label>Name</label>
+        <input type="text" id="modalLinkTitle" placeholder="e.g. YouTube, Reddit, News">
+        <label>URL</label>
+        <input type="text" id="modalLinkUrl" placeholder="https://example.com">
+      </div>
+      <div class="modal-footer">
+        <button class="btn secondary" id="btnCancelModal">Cancel</button>
+        <button class="btn primary" id="btnSaveShortcut">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="newtab.js"></script>
+</body>
+</html>

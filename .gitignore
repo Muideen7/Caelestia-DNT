@@ -1,0 +1,12 @@
+# System / OS
+.DS_Store
+Thumbs.db
+
+# Editors & IDEs
+.vscode/
+.idea/
+*.swp
+*.bak*
+
+# Build / Scratch
+*.tmp
