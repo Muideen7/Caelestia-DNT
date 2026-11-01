@@ -72,19 +72,23 @@
 | :--- | :--- | :--- |
 | <kbd>S</kbd> or <kbd>/</kbd> | **Summon Quick Search** (instantly type a query or URL, <kbd>Enter</kbd> to go) | Dashboard |
 | <kbd>Esc</kbd> | **Dismiss Search or Close Active Menus/Modals** | Everywhere |
-| <kbd>P</kbd> | **Open Browser Quick Menu** | Dashboard |
-| <kbd>Ctrl</kbd> + <kbd>P</kbd> | **Open Browser Settings** (`chrome://settings`) | Dashboard |
+| <kbd>P</kbd> | **Open Browser Quick Menu** (History, Downloads, Bookmarks, Extensions, Settings) | Dashboard |
+| <kbd>,</kbd> or <kbd>Ctrl</kbd> + <kbd>,</kbd> | **Open Browser Settings** (`chrome://settings`) | Dashboard |
 | <kbd>Z</kbd> | **Toggle Full Dashboard** (reveal shortcuts, tasks, and scratchpad) | Dashboard |
-| <kbd>K</kbd> / <kbd>H</kbd> / <kbd>?</kbd> | **Toggle Navigation Hints Bar** (shows/hides the top-right shortcut pills) | Dashboard |
+| <kbd>K</kbd> / <kbd>?</kbd> | **Toggle Navigation Hints Bar** (shows/hides the top-right shortcut pills) | Dashboard |
+| <kbd>,</kbd> / <kbd>S</kbd> | Jump to **Settings** (`chrome://settings`) | While Menu is open |
 | <kbd>H</kbd> | Jump to **History** (`chrome://history`) | While Menu is open |
 | <kbd>D</kbd> | Jump to **Downloads** (`chrome://downloads`) | While Menu is open |
 | <kbd>B</kbd> | Jump to **Bookmarks** (`chrome://bookmarks`) | While Menu is open |
 | <kbd>E</kbd> | Jump to **Extensions** (`chrome://extensions`) | While Menu is open |
+| <kbd>Ctrl</kbd> + <kbd>P</kbd> | **Browser Native Print** (Completely unintercepted and preserved) | Everywhere |
 | <kbd>Ctrl</kbd> + <kbd>1</kbd>–<kbd>9</kbd> | Switch directly to tab 1 through 9 | Browser |
 | <kbd>Ctrl</kbd> + <kbd>Tab</kbd> | Cycle forward to next tab | Browser |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Tab</kbd> | Cycle backward to previous tab | Browser |
 | <kbd>Ctrl</kbd> + <kbd>W</kbd> | Close active tab | Browser |
 | <kbd>Ctrl</kbd> + <kbd>T</kbd> | Open new tab | Browser |
+
+> **Zero Conflict Guarantee**: Standard browser hotkeys (<kbd>Ctrl</kbd>+<kbd>P</kbd> Print, <kbd>Ctrl</kbd>+<kbd>S</kbd> Save Page, <kbd>Ctrl</kbd>+<kbd>T</kbd> New Tab, <kbd>Ctrl</kbd>+<kbd>W</kbd> Close Tab) are never blocked or overridden. Extension quick keys are single-key shortcuts that only respond when you are not typing in an input field and no modifier keys (<kbd>Ctrl</kbd>, <kbd>Alt</kbd>, <kbd>Super</kbd>) are active.
 
 ---
 

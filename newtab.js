@@ -320,8 +320,9 @@
   });
 
   document.addEventListener('keydown', (e) => {
-    // 1. Ctrl + P: Open Browser Settings directly
-    if (e.ctrlKey && (e.key === 'p' || e.key === 'P')) {
+    // 1. Settings shortcut: Comma (,) or Ctrl + Comma (Ctrl + ,)
+    // Matches VS Code, Sublime, and desktop app standards, completely leaving native Ctrl+P (Print) untouched!
+    if ((e.ctrlKey && e.key === ',') || (!isEditing && !e.ctrlKey && !e.altKey && !e.metaKey && e.key === ',')) {
       e.preventDefault();
       startNavigationLoading('Settings', null);
       if (chrome?.runtime?.sendMessage) {
@@ -368,12 +369,15 @@
         h: { url: 'chrome://history', label: 'History' },
         d: { url: 'chrome://downloads', label: 'Downloads' },
         b: { url: 'chrome://bookmarks', label: 'Bookmarks' },
-        e: { url: 'chrome://extensions', label: 'Extensions' }
+        e: { url: 'chrome://extensions', label: 'Extensions' },
+        s: { url: 'chrome://settings', label: 'Settings' },
+        ',': { url: 'chrome://settings', label: 'Settings' }
       };
-      if (routeMap[k]) {
+      if (routeMap[k] || routeMap[e.key]) {
+        const item = routeMap[k] || routeMap[e.key];
         e.preventDefault();
-        startNavigationLoading(routeMap[k].label, null);
-        chrome.runtime.sendMessage({ action: 'openUrl', url: routeMap[k].url });
+        startNavigationLoading(item.label, null);
+        chrome.runtime.sendMessage({ action: 'openUrl', url: item.url });
         setTimeout(() => {
           closeBrowserMenu();
           if (topProgressBar) topProgressBar.classList.remove('active');
@@ -385,7 +389,11 @@
 
     if (isEditing) return;
 
-    // 4. Quick Key Shortcuts
+    // Do NOT trigger single-key actions if modifier keys (Ctrl, Alt, Meta) are held!
+    // This guarantees we NEVER conflict with standard browser shortcuts (e.g. Ctrl+P print, Ctrl+S save, Ctrl+T new tab, etc.)
+    if (e.ctrlKey || e.altKey || e.metaKey) return;
+
+    // 4. Quick Key Shortcuts (Single Key, Non-Conflicting)
     if (e.key === 's' || e.key === 'S' || e.key === '/') {
       e.preventDefault();
       if (searchSection && searchInput) {
