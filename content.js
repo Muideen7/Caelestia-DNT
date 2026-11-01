@@ -12,14 +12,12 @@
   }
 
   function buildYouTubeCSS(colors, isDark) {
-    // Surface & background tokens
     const bg = getHex(colors.background) || (isDark ? '#130d0b' : '#fff8f6');
     const surfaceLow = getHex(colors.surfaceContainerLow) || (isDark ? '#1a110f' : '#faedea');
     const surfaceMid = getHex(colors.surfaceContainer) || (isDark ? '#221715' : '#f5e7e4');
     const surfaceHigh = getHex(colors.surfaceContainerHigh) || (isDark ? '#291d1a' : '#efe1de');
     const surfaceHighest = getHex(colors.surfaceContainerHighest) || (isDark ? '#302220' : '#e9dbd8');
     
-    // High-contrast text tokens (WCAG AAA compliant)
     const onSurface = isDark ? (getHex(colors.onSurface) || '#f9e0db') : '#1c1b1f';
     const onSurfaceVar = isDark ? (getHex(colors.onSurfaceVariant) || '#bca6a2') : '#444140';
     const outline = getHex(colors.outlineVariant) || (isDark ? '#554441' : '#d2c2bf');
@@ -54,13 +52,11 @@
         color: ${onSurface} !important;
       }
 
-      /* Masthead & Navigation */
       #masthead, ytd-masthead, #masthead-container {
         background-color: ${surfaceMid} !important;
         border-bottom: 1px solid ${outline} !important;
       }
 
-      /* Search Bar Container & Input */
       form#search-form,
       #container.ytd-searchbox,
       input.ytd-searchbox,
@@ -81,7 +77,6 @@
         color: ${onSurface} !important;
       }
 
-      /* Sidebar Navigation & High Contrast Text */
       #guide-content.ytd-app, 
       ytd-guide-renderer, 
       ytd-mini-guide-renderer,
@@ -89,7 +84,6 @@
         background-color: ${surfaceLow} !important;
       }
 
-      /* Sidebar Entries & Labels */
       ytd-guide-entry-renderer yt-formatted-string,
       ytd-guide-entry-renderer .title,
       ytd-mini-guide-entry-renderer .title,
@@ -106,7 +100,6 @@
         background-color: ${surfaceHigh} !important;
       }
 
-      /* Video Titles, Channel Names, Content Text */
       #video-title,
       #video-title.ytd-rich-grid-media,
       #video-title.ytd-compact-video-renderer,
@@ -121,7 +114,6 @@
         color: ${onSurface} !important;
       }
 
-      /* Secondary Metadata */
       #metadata-line span,
       #byline,
       #owner-sub-count,
@@ -130,7 +122,6 @@
         color: ${onSurfaceVar} !important;
       }
 
-      /* Filter Chips */
       yt-chip-cloud-chip-renderer[chip-style="STYLE_DEFAULT"] {
         background-color: ${surfaceHigh} !important;
         color: ${onSurface} !important;
@@ -143,7 +134,6 @@
         border-color: ${primary} !important;
       }
 
-      /* Subscribe & Primary Action Buttons */
       ytd-button-renderer.ytd-subscribe-button-renderer ytd-button-renderer button,
       #subscribe-button button,
       .yt-spec-button-shape-next--filled {
@@ -152,7 +142,6 @@
         border-radius: 9999px !important;
       }
 
-      /* Popups, Dialogs & Menus */
       ytd-menu-popup-renderer, 
       tp-yt-paper-dialog, 
       tp-yt-paper-listbox {
@@ -170,7 +159,6 @@
     const surfaceMid = getHex(colors.surfaceContainer) || (isDark ? '#221715' : '#f5e7e4');
     const surfaceHigh = getHex(colors.surfaceContainerHigh) || (isDark ? '#291d1a' : '#efe1de');
     
-    // High-contrast text tokens
     const onSurface = isDark ? (getHex(colors.onSurface) || '#f9e0db') : '#1c1b1f';
     const onSurfaceVar = isDark ? (getHex(colors.onSurfaceVariant) || '#bca6a2') : '#444140';
     const outline = getHex(colors.outlineVariant) || (isDark ? '#554441' : '#d2c2bf');
@@ -178,8 +166,22 @@
     const onPrimary = isDark ? (getHex(colors.onPrimary) || '#61342a') : '#ffffff';
 
     return `
-      /* --- GitHub Caelestia Dynamic Styling --- */
-      html, body, [data-color-mode] {
+      /* --- GitHub Primer & Modern Tokens Overrides --- */
+      :root,
+      html,
+      body,
+      [data-color-mode],
+      [data-dark-theme],
+      [data-light-theme] {
+        --bgColor-default: ${bg} !important;
+        --bgColor-muted: ${surfaceLow} !important;
+        --bgColor-inset: ${surfaceLow} !important;
+        --bgColor-emphasis: ${primary} !important;
+        --fgColor-default: ${onSurface} !important;
+        --fgColor-muted: ${onSurfaceVar} !important;
+        --fgColor-accent: ${primary} !important;
+        --borderColor-default: ${outline} !important;
+        --borderColor-muted: ${outline} !important;
         --color-canvas-default: ${bg} !important;
         --color-canvas-subtle: ${surfaceLow} !important;
         --color-canvas-inset: ${surfaceLow} !important;
@@ -204,32 +206,46 @@
         color: ${onSurface} !important;
       }
 
-      /* Header & Global Bar */
+      /* GitHub App Header Bar */
       header.AppHeader, 
       header.Header, 
       .AppHeader-globalBar, 
       .Header, 
-      header {
+      header,
+      .AppHeader {
         background-color: ${surfaceMid} !important;
         border-bottom: 1px solid ${outline} !important;
         color: ${onSurface} !important;
       }
 
-      header svg, .AppHeader svg {
+      header svg, .AppHeader svg, header .octicon {
         fill: ${onSurface} !important;
+        color: ${onSurface} !important;
       }
 
-      /* Repository Header & Subnav */
-      .pagehead, .subnav, .subnav-bordered, div[data-target="react-app.embedded"] {
+      /* Repository Navigation Bar */
+      .pagehead, .subnav, .subnav-bordered, .UnderlineNav, .UnderlineNav-body, nav[aria-label="Repository"] {
         background-color: ${surfaceLow} !important;
         border-color: ${outline} !important;
+        color: ${onSurface} !important;
       }
 
-      /* File Table, Box Container & Commit Tease */
+      .UnderlineNav-item, .UnderlineNav-item .octicon {
+        color: ${onSurfaceVar} !important;
+        fill: ${onSurfaceVar} !important;
+      }
+
+      .UnderlineNav-item[aria-current="page"], .UnderlineNav-item.selected {
+        color: ${onSurface} !important;
+        border-bottom-color: ${primary} !important;
+      }
+
+      /* File Explorer Table & Commit Bar */
       .Box, 
       .Box-header, 
       .commit-tease, 
-      div[data-target="react-app.reactApp"] > div {
+      div[data-target="react-app.reactApp"] > div,
+      .js-details-container {
         background-color: ${surfaceLow} !important;
         border-color: ${outline} !important;
         color: ${onSurface} !important;
@@ -245,24 +261,26 @@
         background-color: ${surfaceHigh} !important;
       }
 
-      /* File Rows & Filename Text */
       .react-directory-row, 
       .react-directory-filename-column, 
       .react-directory-commit-age,
-      table.files td {
+      table.files td,
+      .react-directory-truncate a {
         color: ${onSurface} !important;
       }
 
-      /* Headings, Paragraphs, Links */
-      h1, h2, h3, h4, h5, h6, p, span {
+      h1, h2, h3, h4, h5, h6, p, span, div {
+        color: ${onSurface};
+      }
+
+      a.Link--primary, a.color-fg-default {
         color: ${onSurface} !important;
       }
 
-      a, a.Link--primary, a.Link--secondary {
+      a, a.Link--secondary, a.color-fg-muted {
         color: ${primary} !important;
       }
 
-      /* Markdown Body / Readme */
       .markdown-body {
         background-color: ${bg} !important;
         color: ${onSurface} !important;
@@ -371,6 +389,14 @@
     const hostname = window.location.hostname.toLowerCase();
     const colors = theme.colours;
     const isDark = theme.mode !== 'light';
+
+    // Synchronize GitHub's root attributes to match Caelestia's mode
+    if (hostname.includes('github.com')) {
+      const modeStr = isDark ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-color-mode', modeStr);
+      document.documentElement.setAttribute('data-dark-theme', modeStr);
+      document.documentElement.setAttribute('data-light-theme', modeStr);
+    }
 
     let css = '';
     if (hostname.includes('youtube.com')) {

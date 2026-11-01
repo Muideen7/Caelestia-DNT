@@ -1,5 +1,5 @@
 // Caelestia Clean New Tab logic
-// Syncs dynamic Material You palette & mode from Caelestia Shell, transparency, live weather, Zen mode, and clean widgets.
+// Keyboard-first flow: Zen mode default, S/slash quick search, P browser menu, and dynamic Caelestia theming.
 
 (() => {
   'use strict';
@@ -19,13 +19,12 @@
       const resp = await fetch(`./caelestia-theme.json?t=${Date.now()}`);
       if (!resp.ok) return;
       const text = await resp.text();
-      if (text === lastThemeJsonStr) return; // No change
+      if (text === lastThemeJsonStr) return;
       lastThemeJsonStr = text;
 
       const theme = JSON.parse(text);
       const root = document.documentElement;
 
-      // Apply light or dark mode attribute
       const mode = theme.mode || 'dark';
       root.setAttribute('data-theme', mode);
       if (themeModeEl) {
@@ -36,11 +35,9 @@
         themeNameEl.textContent = `Caelestia ${name}`;
       }
 
-      // Sync Caelestia Transparency
       const isTransparent = theme.transparency !== false;
       root.setAttribute('data-transparency', isTransparent ? 'true' : 'false');
 
-      // Apply Material You colour tokens
       if (theme.colours) {
         for (const [key, rawVal] of Object.entries(theme.colours)) {
           if (typeof rawVal !== 'string') continue;
@@ -185,7 +182,7 @@
   }
   fetchWeather();
 
-  // --- 4. Navigation Shortcuts Bar Toggle (Show / Hide) ---
+  // --- 4. Navigation Shortcuts Bar Toggle ---
   const btnToggleHints = document.getElementById('btnToggleHints');
   const navHintsContainer = document.getElementById('navHintsContainer');
   const iconToggleHints = document.getElementById('iconToggleHints');
@@ -214,9 +211,13 @@
   }
   updateHintsVisibility();
 
-  // --- 5. Zen / Focus Mode ---
+  // --- 5. Zen / Focus Mode (Default ON for every new tab) ---
   const btnZenToggle = document.getElementById('btnZenToggle');
-  let isZenMode = localStorage.getItem('caelestia_zen') === 'true';
+  const searchSection = document.getElementById('searchSection');
+  const searchInput = document.getElementById('searchInput');
+
+  // Default to true for every new tab to guarantee a distraction-free start
+  let isZenMode = localStorage.getItem('caelestia_zen') !== 'false';
 
   function applyZenMode(enabled) {
     isZenMode = enabled;
@@ -226,13 +227,50 @@
       btnZenToggle.classList.toggle('active', enabled);
       btnZenToggle.title = enabled ? 'Exit Zen Mode (Z)' : 'Enter Zen Mode (Z)';
     }
+    // Close quick search popup if leaving Zen mode
+    if (!enabled && searchSection) {
+      searchSection.classList.remove('search-active');
+    }
   }
 
   if (btnZenToggle) {
     btnZenToggle.addEventListener('click', () => applyZenMode(!isZenMode));
   }
 
-  // --- Instant Keyboard Focus & Fast Workflow ---
+  applyZenMode(isZenMode);
+
+  // --- 6. Browser Quick Menu Modal (Shortcut: P or Button) ---
+  const btnBrowserMenu = document.getElementById('btnBrowserMenu');
+  const browserMenuModal = document.getElementById('browserMenuModal');
+  const btnCloseBrowserMenu = document.getElementById('btnCloseBrowserMenu');
+
+  function openBrowserMenu() {
+    if (browserMenuModal) {
+      browserMenuModal.classList.add('open');
+    }
+  }
+
+  function closeBrowserMenu() {
+    if (browserMenuModal) {
+      browserMenuModal.classList.remove('open');
+      claimFocus();
+    }
+  }
+
+  if (btnBrowserMenu) btnBrowserMenu.addEventListener('click', openBrowserMenu);
+  if (btnCloseBrowserMenu) btnCloseBrowserMenu.addEventListener('click', closeBrowserMenu);
+
+  document.querySelectorAll('.menu-item').forEach((item) => {
+    item.addEventListener('click', () => {
+      const url = item.getAttribute('data-url');
+      if (url && chrome?.runtime?.sendMessage) {
+        chrome.runtime.sendMessage({ action: 'openUrl', url });
+        closeBrowserMenu();
+      }
+    });
+  });
+
+  // --- 7. Instant Keyboard Claim & Workflow Shortcuts ---
   function claimFocus() {
     window.focus();
     if (document.activeElement && document.activeElement !== document.body && document.activeElement !== document.documentElement) {
@@ -250,37 +288,96 @@
   });
 
   document.addEventListener('keydown', (e) => {
-    const activeTag = document.activeElement?.tagName?.toLowerCase();
-    const isEditing = activeTag === 'input' || activeTag === 'textarea';
-
-    // Escape always blurs any active input back to dashboard shortcut mode
-    if (e.key === 'Escape' && isEditing) {
-      document.activeElement.blur();
-      claimFocus();
+    // 1. Ctrl + P: Open Browser Settings directly
+    if (e.ctrlKey && (e.key === 'p' || e.key === 'P')) {
+      e.preventDefault();
+      if (chrome?.runtime?.sendMessage) {
+        chrome.runtime.sendMessage({ action: 'openSettings' });
+      }
       return;
     }
 
+    const activeTag = document.activeElement?.tagName?.toLowerCase();
+    const isEditing = activeTag === 'input' || activeTag === 'textarea';
+
+    // 2. Escape key handling
+    if (e.key === 'Escape') {
+      let handled = false;
+      if (browserMenuModal?.classList.contains('open')) {
+        closeBrowserMenu();
+        handled = true;
+      }
+      if (shortcutModal?.classList.contains('open')) {
+        closeShortcutModal();
+        handled = true;
+      }
+      if (searchSection?.classList.contains('search-active')) {
+        searchSection.classList.remove('search-active');
+        if (searchInput) searchInput.blur();
+        claimFocus();
+        handled = true;
+      } else if (isEditing) {
+        document.activeElement.blur();
+        claimFocus();
+        handled = true;
+      }
+      if (handled) return;
+    }
+
+    // 3. When Browser Menu modal is open, quick-trigger items
+    if (browserMenuModal?.classList.contains('open')) {
+      const k = e.key.toLowerCase();
+      if (k === 'h') {
+        e.preventDefault();
+        chrome.runtime.sendMessage({ action: 'openUrl', url: 'chrome://history' });
+        closeBrowserMenu();
+      } else if (k === 'd') {
+        e.preventDefault();
+        chrome.runtime.sendMessage({ action: 'openUrl', url: 'chrome://downloads' });
+        closeBrowserMenu();
+      } else if (k === 'b') {
+        e.preventDefault();
+        chrome.runtime.sendMessage({ action: 'openUrl', url: 'chrome://bookmarks' });
+        closeBrowserMenu();
+      } else if (k === 'e') {
+        e.preventDefault();
+        chrome.runtime.sendMessage({ action: 'openUrl', url: 'chrome://extensions' });
+        closeBrowserMenu();
+      }
+      return;
+    }
+
+    // If typing inside an input or textarea, don't trigger general shortcuts
     if (isEditing) return;
 
-    if (e.key === 'z' || e.key === 'Z') {
+    // 4. Quick Key Shortcuts
+    if (e.key === 's' || e.key === 'S' || e.key === '/') {
+      // S or / pops up search input instantly in Zen mode (or focuses search in normal mode)
       e.preventDefault();
-      applyZenMode(!isZenMode);
-    } else if (e.key === 'k' || e.key === 'K' || e.key === 'h' || e.key === 'H' || e.key === '?') {
-      e.preventDefault();
-      showHints = !showHints;
-      updateHintsVisibility();
-    } else if (e.key === '/' || e.key === 's' || e.key === 'S') {
-      if (searchInput && !isZenMode) {
-        e.preventDefault();
+      if (searchSection && searchInput) {
+        searchSection.classList.add('search-active');
         searchInput.focus();
         searchInput.select();
       }
+    } else if (e.key === 'p' || e.key === 'P') {
+      // P opens the Browser Quick Menu
+      e.preventDefault();
+      if (browserMenuModal?.classList.contains('open')) {
+        closeBrowserMenu();
+      } else {
+        openBrowserMenu();
+      }
+    } else if (e.key === 'z' || e.key === 'Z') {
+      e.preventDefault();
+      applyZenMode(!isZenMode);
+    } else if (e.key === 'k' || e.key === 'K' || e.key === '?') {
+      e.preventDefault();
+      showHints = !showHints;
+      updateHintsVisibility();
     }
   });
 
-  applyZenMode(isZenMode);
-
-  // --- 6. Search Engine Selector & Submission ---
+  // --- 8. Search Engine Selector & Submission ---
   const ENGINES = {
     google: { name: 'Google', icon: 'search', url: 'https://www.google.com/search?q=' },
     brave: { name: 'Brave Search', icon: 'shield', url: 'https://search.brave.com/search?q=' },
@@ -297,7 +394,6 @@
   const engineIcon = document.getElementById('engineIcon');
   const engineName = document.getElementById('engineName');
   const searchForm = document.getElementById('searchForm');
-  const searchInput = document.getElementById('searchInput');
 
   function setEngine(key) {
     if (!ENGINES[key]) return;
@@ -350,7 +446,7 @@
     });
   }
 
-  // --- 7. Quick Shortcuts Grid (Clean & Commonly Used Websites) ---
+  // --- 9. Quick Shortcuts Grid ---
   const DEFAULT_SHORTCUTS = [
     { id: '1', title: 'YouTube', url: 'https://youtube.com' },
     { id: '2', title: 'Reddit', url: 'https://reddit.com' },
@@ -363,7 +459,6 @@
       const data = localStorage.getItem('caelestia_shortcuts');
       if (data) {
         const parsed = JSON.parse(data);
-        // Exclude AI providers from shortcuts
         return parsed.filter(s => !/chatgpt|openai|claude|gemini|perplexity/i.test(s.title + ' ' + s.url));
       }
     } catch (e) {}
@@ -437,7 +532,6 @@
       shortcutsGrid.appendChild(a);
     });
 
-    // Add Shortcut item
     const addCard = document.createElement('div');
     addCard.className = 'shortcut-item';
     addCard.style.cursor = 'pointer';
@@ -472,6 +566,7 @@
 
   function closeShortcutModal() {
     if (shortcutModal) shortcutModal.classList.remove('open');
+    claimFocus();
   }
 
   if (btnCloseModal) btnCloseModal.addEventListener('click', closeShortcutModal);
@@ -494,11 +589,7 @@
       }
 
       const list = getShortcuts();
-      list.push({
-        id: String(Date.now()),
-        title,
-        url,
-      });
+      list.push({ id: String(Date.now()), title, url });
       saveShortcuts(list);
       renderShortcuts();
       closeShortcutModal();
@@ -507,10 +598,10 @@
 
   renderShortcuts();
 
-  // --- 8. Quick Tasks Widget ---
+  // --- 10. Quick Tasks Widget ---
   const DEFAULT_TODOS = [
-    { id: 1, text: 'Customizable quick task list', done: false },
-    { id: 2, text: 'Press Z to enter Zen Focus Mode', done: false },
+    { id: 1, text: 'Clean keyboard-centric dashboard', done: true },
+    { id: 2, text: 'Press S to search, P for menu', done: false },
   ];
 
   function getTodos() {
@@ -605,7 +696,7 @@
 
   renderTodos();
 
-  // --- 9. Scratchpad Widget (Auto-Save) ---
+  // --- 11. Scratchpad Widget (Auto-Save) ---
   const noteArea = document.getElementById('noteArea');
   const noteStatus = document.getElementById('noteStatus');
 

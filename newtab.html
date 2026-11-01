@@ -30,14 +30,20 @@
     <div class="top-right-group">
       <!-- Collapsible Nav Shortcuts Bar -->
       <div class="nav-hints" id="navHintsContainer" title="Keyboard navigation shortcuts">
-        <span class="hint-item"><kbd>Ctrl</kbd> + <kbd>1-9</kbd> Tabs</span>
-        <span class="hint-item"><kbd>Ctrl</kbd> + <kbd>Tab</kbd> Next</span>
-        <span class="hint-item"><kbd>Ctrl</kbd> + <kbd>W</kbd> Close</span>
+        <span class="hint-item"><kbd>S</kbd> Search</span>
+        <span class="hint-item"><kbd>Z</kbd> Zen</span>
+        <span class="hint-item"><kbd>P</kbd> Menu</span>
+        <span class="hint-item"><kbd>Ctrl+P</kbd> Settings</span>
       </div>
 
       <!-- Toggle Button to Hide/Show Shortcuts -->
       <button class="icon-btn" id="btnToggleHints" title="Toggle navigation shortcuts bar (Shortcut: K)">
         <span class="material-symbols-rounded" id="iconToggleHints">keyboard</span>
+      </button>
+
+      <!-- Browser Menu Button -->
+      <button class="icon-btn" id="btnBrowserMenu" title="Open Browser Menu (Shortcut: P)">
+        <span class="material-symbols-rounded">more_vert</span>
       </button>
 
       <!-- Zen / Focus Mode Button -->
@@ -70,7 +76,7 @@
           <span class="material-symbols-rounded arrow">expand_more</span>
         </button>
 
-        <input type="text" class="search-input" id="searchInput" placeholder="Search the web or type a URL..." autocomplete="off" >
+        <input type="text" class="search-input" id="searchInput" placeholder="Type a search query or URL... (Press Esc to close)" autocomplete="off">
 
         <button type="submit" class="search-submit-btn" title="Search">
           <span class="material-symbols-rounded">arrow_forward</span>
@@ -154,6 +160,48 @@
       <div class="modal-footer">
         <button class="btn secondary" id="btnCancelModal">Cancel</button>
         <button class="btn primary" id="btnSaveShortcut">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Browser Quick Menu Modal (Triggered by P) -->
+  <div class="modal-overlay" id="browserMenuModal">
+    <div class="modal-card menu-card">
+      <div class="modal-header">
+        <div class="menu-header-title">
+          <span class="material-symbols-rounded" style="color: var(--md-sys-color-primary);">more_vert</span>
+          <h3>Browser Menu</h3>
+        </div>
+        <button class="close-btn" id="btnCloseBrowserMenu">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </div>
+      <div class="menu-list">
+        <div class="menu-item" data-url="chrome://settings">
+          <span class="material-symbols-rounded icon">settings</span>
+          <span class="menu-label">Browser Settings</span>
+          <kbd class="menu-kbd">Ctrl+P</kbd>
+        </div>
+        <div class="menu-item" data-url="chrome://history">
+          <span class="material-symbols-rounded icon">history</span>
+          <span class="menu-label">History</span>
+          <kbd class="menu-kbd">H</kbd>
+        </div>
+        <div class="menu-item" data-url="chrome://downloads">
+          <span class="material-symbols-rounded icon">download</span>
+          <span class="menu-label">Downloads</span>
+          <kbd class="menu-kbd">D</kbd>
+        </div>
+        <div class="menu-item" data-url="chrome://bookmarks">
+          <span class="material-symbols-rounded icon">bookmarks</span>
+          <span class="menu-label">Bookmarks</span>
+          <kbd class="menu-kbd">B</kbd>
+        </div>
+        <div class="menu-item" data-url="chrome://extensions">
+          <span class="material-symbols-rounded icon">extension</span>
+          <span class="menu-label">Extensions</span>
+          <kbd class="menu-kbd">E</kbd>
+        </div>
       </div>
     </div>
   </div>

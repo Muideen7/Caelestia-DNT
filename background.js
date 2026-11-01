@@ -1,6 +1,5 @@
 // Caelestia Fullscreen New Tab Service Worker
-// Respects Caelestia's tiling layout (never forces edge-to-edge screen takeover),
-// keeps video player fullscreens untouched, and synchronizes theme colors.
+// Manages internal browser shortcuts, tiling compliance, and theme broadcasting.
 
 // Broadcasts theme from caelestia-theme.json into chrome.storage.local
 async function syncThemeToStorage() {
@@ -22,22 +21,30 @@ chrome.runtime.onInstalled.addListener(syncThemeToStorage);
 chrome.runtime.onStartup.addListener(syncThemeToStorage);
 setInterval(syncThemeToStorage, 3000);
 
-// We deliberately DO NOT force chrome.windows.update({ state: "fullscreen" }) here.
-// This allows Hyprland / Caelestia to naturally tile Brave alongside other apps
-// (such as foot terminal) at Caelestia's default window sizes, gaps, and borders,
-// while letting native video player toggles (e.g. YouTube) expand normally.
-
-// Message listener for optional actions
+// Message listener for browser actions and navigation
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   const winId = sender.tab?.windowId;
-  if (!winId) return;
+
+  if (msg.action === 'openSettings') {
+    chrome.tabs.create({ url: 'chrome://settings' });
+    sendResponse({ status: 'settings_opened' });
+    return true;
+  }
+
+  if (msg.action === 'openUrl' && msg.url) {
+    chrome.tabs.create({ url: msg.url });
+    sendResponse({ status: 'url_opened' });
+    return true;
+  }
 
   if (msg.action === 'toggleFullscreen') {
-    chrome.windows.get(winId, (win) => {
-      const nextState = win.state === 'fullscreen' ? 'normal' : 'fullscreen';
-      chrome.windows.update(winId, { state: nextState });
-      sendResponse({ state: nextState });
-    });
-    return true;
+    if (winId) {
+      chrome.windows.get(winId, (win) => {
+        const nextState = win.state === 'fullscreen' ? 'normal' : 'fullscreen';
+        chrome.windows.update(winId, { state: nextState });
+        sendResponse({ state: nextState });
+      });
+      return true;
+    }
   }
 });

@@ -892,3 +892,77 @@ body {
   pointer-events: none;
   transform: translateX(10px);
 }
+
+/* --- Floating Search Active in Zen Mode --- */
+.zen-mode #searchSection.search-active {
+  opacity: 1 !important;
+  transform: translateY(0) scale(1.02) !important;
+  pointer-events: auto !important;
+  visibility: visible !important;
+  height: auto !important;
+  margin: 16px auto 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  z-index: 100;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  animation: searchPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes searchPop {
+  from { opacity: 0; transform: translateY(-10px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1.02); }
+}
+
+/* --- Browser Quick Menu (Triggered by P) --- */
+.menu-card {
+  max-width: 360px !important;
+  padding: 20px !important;
+}
+
+.menu-header-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 10px;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--md-sys-color-on-surface);
+  transition: background-color 0.15s ease, transform 0.15s ease;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.menu-item:hover {
+  background-color: var(--md-sys-color-surface-container-high);
+  transform: translateX(3px);
+  color: var(--md-sys-color-primary);
+}
+
+.menu-item .icon {
+  font-size: 20px;
+  color: var(--md-sys-color-primary);
+}
+
+.menu-kbd {
+  margin-left: auto;
+  background-color: var(--md-sys-color-surface-container-highest);
+  color: var(--md-sys-color-on-surface-variant);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: inherit;
+}
