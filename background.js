@@ -17,7 +17,12 @@ async function syncThemeToStorage() {
 
 // Initial sync and periodic theme broadcast
 syncThemeToStorage();
-chrome.runtime.onInstalled.addListener(syncThemeToStorage);
+chrome.runtime.onInstalled.addListener((details) => {
+  syncThemeToStorage();
+  if (details.reason === 'install') {
+    chrome.tabs.create({ url: 'newtab.html#onboarding' });
+  }
+});
 chrome.runtime.onStartup.addListener(syncThemeToStorage);
 setInterval(syncThemeToStorage, 3000);
 

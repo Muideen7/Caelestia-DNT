@@ -4,6 +4,15 @@
 (() => {
   'use strict';
 
+  // --- 0. Chromium New Tab Autofocus Workaround ---
+  // When a new tab opens, Chromium traps focus inside the native Omnibox.
+  // Performing a single replace with ?focus=1 forces Chromium to yield full keyboard focus to web contents.
+  if (!window.location.search.includes('focus=1')) {
+    const hash = window.location.hash || '';
+    window.location.replace(`newtab.html?focus=1${hash}`);
+    return;
+  }
+
   // --- 1. Dynamic Caelestia Theme & Transparency Sync ---
   const themeModeEl = document.getElementById('themeMode');
   const themeNameEl = document.getElementById('themeName');
@@ -79,47 +88,21 @@
     updateClock();
   }
 
-  if (greetingUsernameEl) {
-    greetingUsernameEl.addEventListener('click', () => {
-      if (greetingUsernameEl.classList.contains('editing')) return;
-      const current = getUsername();
-      greetingUsernameEl.classList.add('editing');
-
-      const input = document.createElement('input');
-      input.type = 'text';
-      input.className = 'greeting-name-input';
-      input.value = current;
-      input.maxLength = 28;
-
-      const finish = (save) => {
-        greetingUsernameEl.classList.remove('editing');
-        if (save) {
-          setUsername(input.value || current);
-        } else {
-          updateClock();
-        }
-        claimFocus();
-      };
-
-      input.addEventListener('keydown', (e) => {
-        e.stopPropagation();
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          finish(true);
-        } else if (e.key === 'Escape') {
-          e.preventDefault();
-          finish(false);
-        }
-      });
-
-      input.addEventListener('blur', () => finish(true));
-
-      greetingUsernameEl.innerHTML = '';
-      greetingUsernameEl.appendChild(input);
-      input.focus();
-      input.select();
+  // Display name is configured exclusively via Options page & Onboarding
+  if (chrome?.storage?.onChanged) {
+    chrome.storage.onChanged.addListener((changes, area) => {
+      if (area === 'local' && changes.caelestia_username) {
+        localStorage.setItem('caelestia_username', changes.caelestia_username.newValue);
+        updateClock();
+      }
     });
   }
+
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'caelestia_username') {
+      updateClock();
+    }
+  });
 
   const QUOTES = [
     '"Simplicity is the ultimate sophistication." — Leonardo da Vinci',
@@ -415,16 +398,140 @@
     });
   });
 
+  // --- 7b. Onboarding Modal Wizard (Chrome Web Store First-Time Flow) ---
+  const onboardingModal = document.getElementById('onboardingModal');
+  const dot1 = document.getElementById('dot1');
+  const dot2 = document.getElementById('dot2');
+  const dot3 = document.getElementById('dot3');
+  const step1 = document.getElementById('onboardingStep1');
+  const step2 = document.getElementById('onboardingStep2');
+  const step3 = document.getElementById('onboardingStep3');
+  const btnNextStep1 = document.getElementById('btnNextStep1');
+  const btnBackStep2 = document.getElementById('btnBackStep2');
+  const btnNextStep2 = document.getElementById('btnNextStep2');
+  const btnBackStep3 = document.getElementById('btnBackStep3');
+  const btnFinishOnboarding = document.getElementById('btnFinishOnboarding');
+  const onboardingNameInput = document.getElementById('onboardingNameInput');
+  const obZen = document.getElementById('obZen');
+  const obDash = document.getElementById('obDash');
+
+  let currentStep = 1;
+
+  function showStep(stepNum) {
+    currentStep = stepNum;
+    if (step1) step1.classList.toggle('active', stepNum === 1);
+    if (step2) step2.classList.toggle('active', stepNum === 2);
+    if (step3) step3.classList.toggle('active', stepNum === 3);
+
+    if (dot1) dot1.classList.toggle('active', stepNum === 1);
+    if (dot2) dot2.classList.toggle('active', stepNum === 2);
+    if (dot3) dot3.classList.toggle('active', stepNum === 3);
+
+    if (stepNum === 2 && onboardingNameInput) {
+      setTimeout(() => {
+        onboardingNameInput.focus();
+        onboardingNameInput.select();
+      }, 50);
+    }
+  }
+
+  function openOnboarding() {
+    if (!onboardingModal) return;
+    const currentName = getUsername();
+    if (onboardingNameInput) {
+      onboardingNameInput.value = currentName !== 'FrontendGeek' ? currentName : '';
+    }
+    const isZen = localStorage.getItem('caelestia_zen') !== 'false';
+    if (obZen && obDash) {
+      obZen.checked = isZen;
+      obDash.checked = !isZen;
+    }
+    showStep(1);
+    onboardingModal.classList.add('open');
+  }
+
+  function closeOnboarding() {
+    if (onboardingModal) {
+      onboardingModal.classList.remove('open');
+      claimFocus();
+    }
+  }
+
+  if (btnNextStep1) btnNextStep1.addEventListener('click', () => showStep(2));
+  if (btnBackStep2) btnBackStep2.addEventListener('click', () => showStep(1));
+  if (btnNextStep2) btnNextStep2.addEventListener('click', () => showStep(3));
+  if (btnBackStep3) btnBackStep3.addEventListener('click', () => showStep(2));
+
+  if (onboardingNameInput) {
+    onboardingNameInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        showStep(3);
+      }
+    });
+  }
+
+  if (btnFinishOnboarding) {
+    btnFinishOnboarding.addEventListener('click', () => {
+      const enteredName = (onboardingNameInput?.value || '').trim();
+      if (enteredName) {
+        setUsername(enteredName);
+        if (chrome?.storage?.local) {
+          chrome.storage.local.set({ caelestia_username: enteredName });
+        }
+      }
+      if (obZen && obDash) {
+        const isZen = obZen.checked;
+        localStorage.setItem('caelestia_zen', String(isZen));
+        applyZenMode(isZen);
+      }
+      localStorage.setItem('caelestia_onboarded', 'true');
+      if (chrome?.storage?.local) {
+        chrome.storage.local.set({ caelestia_onboarded: true });
+      }
+      closeOnboarding();
+    });
+  }
+
+  function checkOnboarding() {
+    const isFirstTime = !localStorage.getItem('caelestia_onboarded');
+    const isHashTrigger = window.location.hash === '#onboarding';
+    if (isFirstTime || isHashTrigger) {
+      if (isHashTrigger && window.history?.replaceState) {
+        window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
+      openOnboarding();
+    }
+  }
+
   // --- 8. Instant Keyboard Claim & Workflow Shortcuts ---
+  const keyboardTrap = document.getElementById('keyboardTrap');
+
+  function openOptionsPage() {
+    startNavigationLoading('Preferences', 'options.html');
+  }
+
   function claimFocus() {
     try {
-      if (!document.body.hasAttribute('tabindex')) {
-        document.body.setAttribute('tabindex', '-1');
+      if (searchSection?.classList.contains('search-active')) {
+        if (searchInput && document.activeElement !== searchInput) {
+          searchInput.focus();
+        }
+        return;
       }
-      document.body.focus();
-      window.focus();
-      if (document.activeElement && document.activeElement !== document.body && document.activeElement !== document.documentElement) {
-        document.activeElement.blur();
+      if (onboardingModal?.classList.contains('open')) {
+        if (currentStep === 2 && onboardingNameInput) {
+          onboardingNameInput.focus();
+        }
+        return;
+      }
+      if (browserMenuModal?.classList.contains('open') || shortcutModal?.classList.contains('open')) {
+        return;
+      }
+      if (keyboardTrap) {
+        keyboardTrap.focus();
+      } else if (document.body) {
+        document.body.focus();
       }
     } catch (e) {}
   }
@@ -443,11 +550,17 @@
     // 0. Resolve active editing element safely BEFORE anything else
     const activeEl = document.activeElement;
     const activeTag = activeEl?.tagName?.toLowerCase();
-    const isEditing = activeTag === 'input' || activeTag === 'textarea' || activeEl?.isContentEditable === true;
+    const isEditing = (activeTag === 'textarea' || (activeTag === 'input' && activeEl?.id !== 'keyboardTrap')) || activeEl?.isContentEditable === true;
+    const isSearchActive = searchSection?.classList.contains('search-active');
+    const isOnboardingOpen = onboardingModal?.classList.contains('open');
 
     // 1. Escape key handling (works even while editing or modal open)
     if (e.key === 'Escape') {
       let handled = false;
+      if (isOnboardingOpen) {
+        closeOnboarding();
+        handled = true;
+      }
       if (browserMenuModal?.classList.contains('open')) {
         closeBrowserMenu();
         handled = true;
@@ -458,7 +571,7 @@
         claimFocus();
         handled = true;
       }
-      if (searchSection?.classList.contains('search-active')) {
+      if (isSearchActive) {
         searchSection.classList.remove('search-active');
         if (searchInput) searchInput.blur();
         claimFocus();
@@ -474,24 +587,64 @@
       }
     }
 
+    // 2. SEARCH-ACTIVE SHIELD:
+    // If search mode is active, NEVER allow single-key navigation (H for history, D for downloads, etc.) to fire!
+    // All typing is routed into searchInput.
+    if (isSearchActive) {
+      if (e.ctrlKey || e.altKey || e.metaKey) {
+        return;
+      }
+      if (e.key === 'Enter') {
+        if (searchInput && document.activeElement !== searchInput) {
+          e.preventDefault();
+          searchForm?.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+        }
+        return;
+      }
+      // If focus was lost from searchInput (e.g. user pressed S then didn't focus on search input):
+      if (searchInput && document.activeElement !== searchInput) {
+        searchInput.focus();
+        if (e.key.length === 1) {
+          e.preventDefault();
+          searchInput.value += e.key;
+          searchInput.setSelectionRange(searchInput.value.length, searchInput.value.length);
+        }
+      }
+      return;
+    }
+
+    // 3. ONBOARDING MODAL ACTIVE:
+    if (isOnboardingOpen) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        if (currentStep === 1) {
+          showStep(2);
+        } else if (currentStep === 2) {
+          showStep(3);
+        } else if (currentStep === 3) {
+          btnFinishOnboarding?.click();
+        }
+      }
+      return;
+    }
+
     // CRITICAL: If typing inside any input or textarea, do NOT intercept or trigger shortcuts!
     if (isEditing) return;
 
     // Do NOT trigger single-key actions if modifier keys (Ctrl, Alt, Meta) are held!
     // This strictly preserves native browser shortcuts (Ctrl+P print, Ctrl+S save, Ctrl+T new tab, etc.)
     if (e.ctrlKey || e.altKey || e.metaKey) {
-      // Except Ctrl + Comma for Settings (standard developer preferences convention)
       if (e.ctrlKey && !e.altKey && !e.metaKey && e.key === ',') {
         e.preventDefault();
-        openBrowserSettings();
+        openOptionsPage();
       }
       return;
     }
 
-    // 2. Settings shortcut: Comma (,) alone
+    // 2. Settings / Preferences shortcut: Comma (,) alone
     if (e.key === ',') {
       e.preventDefault();
-      openBrowserSettings();
+      openOptionsPage();
       return;
     }
 
@@ -504,7 +657,8 @@
         b: { url: 'chrome://bookmarks', label: 'Bookmarks' },
         e: { url: 'chrome://extensions', label: 'Extensions' },
         s: { url: 'chrome://settings', label: 'Settings' },
-        ',': { url: 'chrome://settings', label: 'Settings' }
+        ',': { url: 'options.html', label: 'Preferences' },
+        o: { url: 'options.html', label: 'Preferences' }
       };
       if (routeMap[k] || routeMap[e.key]) {
         const item = routeMap[k] || routeMap[e.key];
@@ -525,8 +679,10 @@
       e.preventDefault();
       if (searchSection && searchInput) {
         searchSection.classList.add('search-active');
-        searchInput.focus();
-        searchInput.select();
+        setTimeout(() => {
+          searchInput.focus();
+          searchInput.select();
+        }, 10);
       }
       return;
     }
@@ -925,4 +1081,7 @@
       }, 500);
     });
   }
+
+  // --- 13. Chrome Web Store First-Run Onboarding Check ---
+  checkOnboarding();
 })();

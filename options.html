@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Caelestia New Tab - Options & Preferences</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="options-container">
+    <!-- Header -->
+    <header class="options-header">
+      <div class="header-brand">
+        <div class="header-icon-box">
+          <span class="material-symbols-rounded">palette</span>
+        </div>
+        <div class="header-title-box">
+          <h1>Caelestia Preferences</h1>
+          <span class="header-badge">v1.3.0</span>
+        </div>
+      </div>
+      <a href="newtab.html" class="btn secondary back-btn">
+        <span class="material-symbols-rounded">arrow_back</span> Return to New Tab
+      </a>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="options-grid">
+      <!-- 1. Profile & Greeting -->
+      <section class="options-card">
+        <div class="card-header">
+          <span class="material-symbols-rounded icon">account_circle</span>
+          <h2>User Profile & Greeting</h2>
+        </div>
+        <p class="card-desc">Personalize how Caelestia greets you on every new tab.</p>
+
+        <div class="field-group">
+          <label for="displayNameInput">Your Display Name</label>
+          <div class="input-with-button">
+            <input type="text" id="displayNameInput" placeholder="e.g. FrontendGeek, Alex..." maxlength="32">
+            <button class="btn primary" id="btnSaveName">Save</button>
+          </div>
+          <span class="field-hint">Used in: <strong id="greetingPreview">Good Day, FrontendGeek</strong></span>
+        </div>
+      </section>
+
+      <!-- 2. Startup & Views -->
+      <section class="options-card">
+        <div class="card-header">
+          <span class="material-symbols-rounded icon">view_quilt</span>
+          <h2>Startup & Views</h2>
+        </div>
+        <p class="card-desc">Choose how new tabs look when you open them.</p>
+
+        <div class="field-group">
+          <label>Default Startup Mode</label>
+          <div class="radio-cards">
+            <label class="radio-card">
+              <input type="radio" name="defaultView" value="zen" id="radioZen">
+              <div class="radio-card-content">
+                <span class="material-symbols-rounded">filter_center_focus</span>
+                <div>
+                  <strong>Zen Mode (Recommended)</strong>
+                  <p>Distraction-free focus with clock, greeting, and daily quotes. Press <kbd>S</kbd> to search anytime.</p>
+                </div>
+              </div>
+            </label>
+
+            <label class="radio-card">
+              <input type="radio" name="defaultView" value="dashboard" id="radioDashboard">
+              <div class="radio-card-content">
+                <span class="material-symbols-rounded">dashboard</span>
+                <div>
+                  <strong>Full Dashboard</strong>
+                  <p>Reveals your quick links, tasks checklist, and auto-saving scratchpad immediately.</p>
+                </div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="toggle-row">
+          <div>
+            <strong>Show Navigation Hints Bar</strong>
+            <p>Displays the top-right keyboard navigation pills (<kbd>S</kbd>, <kbd>Z</kbd>, <kbd>P</kbd>, <kbd>,</kbd>).</p>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="toggleHints">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </section>
+
+      <!-- 3. Search Engine -->
+      <section class="options-card">
+        <div class="card-header">
+          <span class="material-symbols-rounded icon">search</span>
+          <h2>Search Engine</h2>
+        </div>
+        <p class="card-desc">Select your preferred default engine for the quick search popup (<kbd>S</kbd>).</p>
+
+        <div class="engine-grid" id="engineGrid">
+          <label class="engine-card">
+            <input type="radio" name="searchEngine" value="google">
+            <div class="engine-content">
+              <span class="material-symbols-rounded">search</span>
+              <strong>Google</strong>
+            </div>
+          </label>
+          <label class="engine-card">
+            <input type="radio" name="searchEngine" value="brave">
+            <div class="engine-content">
+              <span class="material-symbols-rounded">shield</span>
+              <strong>Brave Search</strong>
+            </div>
+          </label>
+          <label class="engine-card">
+            <input type="radio" name="searchEngine" value="duckduckgo">
+            <div class="engine-content">
+              <span class="material-symbols-rounded">travel_explore</span>
+              <strong>DuckDuckGo</strong>
+            </div>
+          </label>
+          <label class="engine-card">
+            <input type="radio" name="searchEngine" value="youtube">
+            <div class="engine-content">
+              <span class="material-symbols-rounded">smart_display</span>
+              <strong>YouTube</strong>
+            </div>
+          </label>
+          <label class="engine-card">
+            <input type="radio" name="searchEngine" value="wikipedia">
+            <div class="engine-content">
+              <span class="material-symbols-rounded">menu_book</span>
+              <strong>Wikipedia</strong>
+            </div>
+          </label>
+        </div>
+      </section>
+
+      <!-- 4. Onboarding & Tour -->
+      <section class="options-card">
+        <div class="card-header">
+          <span class="material-symbols-rounded icon">help</span>
+          <h2>Onboarding & Help</h2>
+        </div>
+        <p class="card-desc">Need a refresher on features or keyboard shortcuts?</p>
+
+        <div class="actions-row">
+          <button class="btn secondary" id="btnRestartTour">
+            <span class="material-symbols-rounded">rocket_launch</span> Re-run Welcome Tour
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <!-- Save Toast Notification -->
+    <div class="save-toast" id="saveToast">Settings saved successfully!</div>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

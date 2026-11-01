@@ -48,13 +48,18 @@
   - **Search Button Spinner**: The submit arrow morphs into an indeterminate spinner (`progress_activity`).
   - **Navigation Status Toast**: A bottom-centered glassmorphic pill confirms target destination in real time (e.g. `Opening YouTube...`, `Opening Settings...`).
 - **📖 Prominent & Legible Daily Quotes**: Inspiring, hand-curated quotes displayed in prominent, comfortable typography below the clock—no eye squinting required.
-- **⚙️ Browser Quick Menu (<kbd>P</kbd>) & Settings (<kbd>Ctrl</kbd> + <kbd>P</kbd>)**:
+- **🚀 3-Step Interactive Onboarding Wizard**: Automatically greets first-time users upon installation from the Chrome Web Store. Guides users through features, lets them set their display name, choose default startup mode (Zen vs Full Dashboard), and presents a quick shortcuts tour.
+- **⚙️ Extension Preferences Page (`options.html`)**: Clean Material 3 preferences tab to configure user display name, default startup view, search engine preference, hints bar visibility, or re-run the welcome tour anytime.
+- **🛡️ Search Mode Keyboard Shield**: When search mode is activated via <kbd>S</kbd>, all typing is safely trapped and routed directly into the search bar—letters like <kbd>H</kbd> (history) or <kbd>D</kbd> (downloads) never accidentally navigate away.
+- **⚙️ Browser Quick Menu (<kbd>P</kbd>) & Settings (<kbd>,</kbd>)**:
   - Press <kbd>P</kbd> to open the Browser Quick Menu with one-key navigation:
     - <kbd>H</kbd> → History (`chrome://history`)
     - <kbd>D</kbd> → Downloads (`chrome://downloads`)
     - <kbd>B</kbd> → Bookmarks (`chrome://bookmarks`)
     - <kbd>E</kbd> → Extensions (`chrome://extensions`)
-  - Press <kbd>Ctrl</kbd> + <kbd>P</kbd> to jump straight into Browser Settings (`chrome://settings`).
+    - <kbd>S</kbd> → Browser Settings (`chrome://settings`)
+    - <kbd>O</kbd> / <kbd>,</kbd> → Caelestia Preferences (`options.html`)
+  - Press <kbd>,</kbd> or <kbd>Ctrl</kbd> + <kbd>,</kbd> to jump straight into Extension Preferences.
 - **🎨 Live Material You Color Parity**: Automatically adapts to dynamic color schemes generated from your wallpaper (`~/.local/state/caelestia/scheme.json`), seamlessly transitioning between light and dark modes with **WCAG AAA high contrast readability**.
 - **🪟 Tiling-First Window Management**: Never breaks your window manager's tiling tree. Open apps side-by-side (e.g. Brave next to Foot or Kitty terminal) with proper resizing, gaps, and borders.
 - **⌨️ Toggleable Navigation Hints Bar (<kbd>K</kbd> / <kbd>?</kbd>)**: Built-in reference for tab navigation. Toggle on/off with <kbd>K</kbd>.
@@ -72,21 +77,22 @@
 | :--- | :--- | :--- |
 | <kbd>S</kbd> or <kbd>/</kbd> | **Summon Quick Search** (instantly type a query or URL, <kbd>Enter</kbd> to go) | Dashboard |
 | <kbd>Esc</kbd> | **Dismiss Search or Close Active Menus/Modals** | Everywhere |
-| <kbd>P</kbd> | **Open Browser Quick Menu** (History, Downloads, Bookmarks, Extensions, Settings) | Dashboard |
-| <kbd>,</kbd> or <kbd>Ctrl</kbd> + <kbd>,</kbd> | **Open Browser Settings** (`chrome://settings`) | Dashboard |
-| <kbd>Z</kbd> | **Toggle Full Dashboard** (reveal shortcuts, tasks, and scratchpad) | Dashboard |
+| <kbd>P</kbd> | **Open Browser Quick Menu** (History, Downloads, Bookmarks, Extensions, Preferences) | Dashboard |
+| <kbd>,</kbd> or <kbd>Ctrl</kbd> + <kbd>,</kbd> | **Open Caelestia Preferences** (`options.html`) | Dashboard |
+| <kbd>Z</kbd> | **Toggle Full Dashboard / Zen Mode** (reveal shortcuts, tasks, and scratchpad) | Dashboard |
 | <kbd>K</kbd> / <kbd>?</kbd> | **Toggle Navigation Hints Bar** (shows/hides the top-right shortcut pills) | Dashboard |
-| <kbd>,</kbd> / <kbd>S</kbd> | Jump to **Settings** (`chrome://settings`) | While Menu is open |
-| <kbd>H</kbd> | Jump to **History** (`chrome://history`) | While Menu is open |
-| <kbd>D</kbd> | Jump to **Downloads** (`chrome://downloads`) | While Menu is open |
-| <kbd>B</kbd> | Jump to **Bookmarks** (`chrome://bookmarks`) | While Menu is open |
-| <kbd>E</kbd> | Jump to **Extensions** (`chrome://extensions`) | While Menu is open |
+| <kbd>H</kbd> | Direct jump to **History** (`chrome://history`) | Dashboard / Menu |
+| <kbd>D</kbd> | Direct jump to **Downloads** (`chrome://downloads`) | Dashboard / Menu |
+| <kbd>B</kbd> | Direct jump to **Bookmarks** (`chrome://bookmarks`) | Dashboard / Menu |
+| <kbd>E</kbd> | Direct jump to **Extensions** (`chrome://extensions`) | Dashboard / Menu |
+| <kbd>O</kbd> / <kbd>,</kbd> | Jump to **Caelestia Preferences** (`options.html`) | While Menu is open |
+| <kbd>S</kbd> | Jump to **Browser Settings** (`chrome://settings`) | While Menu is open |
 | <kbd>Ctrl</kbd> + <kbd>P</kbd> | **Browser Native Print** (Completely unintercepted and preserved) | Everywhere |
 | <kbd>Ctrl</kbd> + <kbd>1</kbd>–<kbd>9</kbd> | Switch directly to tab 1 through 9 | Browser |
 | <kbd>Ctrl</kbd> + <kbd>Tab</kbd> | Cycle forward to next tab | Browser |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Tab</kbd> | Cycle backward to previous tab | Browser |
 | <kbd>Ctrl</kbd> + <kbd>W</kbd> | Close active tab | Browser |
-| <kbd>Ctrl</kbd> + <kbd>T</kbd> | Open new tab | Browser |
+| <kbd>Ctrl</kbd> + <kbd>T</kbd> | Open new tab (auto-focused and ready for keyboard shortcuts) | Browser |
 
 > **Zero Conflict Guarantee**: Standard browser hotkeys (<kbd>Ctrl</kbd>+<kbd>P</kbd> Print, <kbd>Ctrl</kbd>+<kbd>S</kbd> Save Page, <kbd>Ctrl</kbd>+<kbd>T</kbd> New Tab, <kbd>Ctrl</kbd>+<kbd>W</kbd> Close Tab) are never blocked or overridden. Extension quick keys are single-key shortcuts that only respond when you are not typing in an input field and no modifier keys (<kbd>Ctrl</kbd>, <kbd>Alt</kbd>, <kbd>Super</kbd>) are active.
 
