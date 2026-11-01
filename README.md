@@ -19,7 +19,7 @@
 ## 📸 Screenshots
 
 ### 1. Zen / Focus Mode (Default View on Every New Tab)
-> Opens by default in clean Zen mode with a minimal clock, contextual greeting, daily quote, and frosted desktop wallpaper. Press <kbd>S</kbd> or <kbd>/</kbd> anytime to summon the search bar.
+> Every new tab opens by default in clean Zen mode with a large readable clock, contextual greeting, prominent daily quote, and frosted desktop wallpaper. Press <kbd>S</kbd> or <kbd>/</kbd> anytime to summon search.
 
 ![Zen Mode](screenshots/zen-mode.png)
 
@@ -41,12 +41,21 @@
 
 ## ✨ Features
 
-- **🧘 Keyboard-First Zen Mode by Default**: Every new tab opens in a peaceful, distraction-free Zen state. No need to click or move your mouse—keyboard focus is instantly asserted.
+- **🧘 Keyboard-First Zen Mode by Default**: Every new tab opens in a peaceful, distraction-free Zen state. No mouse interaction needed—keyboard focus is instantly asserted.
 - **🔍 Quick Search Pop-over (<kbd>S</kbd> or <kbd>/</kbd>)**: Tap <kbd>S</kbd> or <kbd>/</kbd> anywhere on the page to instantly pop up the search bar, type your query or URL, and press <kbd>Enter</kbd>. Press <kbd>Esc</kbd> to return to clean Zen mode.
+- **⚡ Visual Navigation Loading States**:
+  - **Top Material 3 Linear Progress Bar**: A sleek glowing progress line glides across the top edge as soon as a search query, link, or menu action is submitted.
+  - **Search Button Spinner**: The submit arrow morphs into an indeterminate spinner (`progress_activity`).
+  - **Navigation Status Toast**: A bottom-centered glassmorphic pill confirms target destination in real time (e.g. `Opening YouTube...`, `Opening Settings...`).
+- **📖 Prominent & Legible Daily Quotes**: Inspiring, hand-curated quotes displayed in prominent, comfortable typography below the clock—no eye squinting required.
 - **⚙️ Browser Quick Menu (<kbd>P</kbd>) & Settings (<kbd>Ctrl</kbd> + <kbd>P</kbd>)**:
-  - Press <kbd>P</kbd> to open the Browser Quick Menu (History, Bookmarks, Downloads, Extensions, Settings).
-  - Press <kbd>Ctrl</kbd> + <kbd>P</kbd> to jump straight into Browser Settings.
-- **🎨 Live Material You Color Parity**: Automatically adapts to dynamic color schemes generated from your wallpaper (`~/.local/state/caelestia/scheme.json`), seamlessly transitioning between light and dark modes with WCAG AAA high contrast readability.
+  - Press <kbd>P</kbd> to open the Browser Quick Menu with one-key navigation:
+    - <kbd>H</kbd> → History (`chrome://history`)
+    - <kbd>D</kbd> → Downloads (`chrome://downloads`)
+    - <kbd>B</kbd> → Bookmarks (`chrome://bookmarks`)
+    - <kbd>E</kbd> → Extensions (`chrome://extensions`)
+  - Press <kbd>Ctrl</kbd> + <kbd>P</kbd> to jump straight into Browser Settings (`chrome://settings`).
+- **🎨 Live Material You Color Parity**: Automatically adapts to dynamic color schemes generated from your wallpaper (`~/.local/state/caelestia/scheme.json`), seamlessly transitioning between light and dark modes with **WCAG AAA high contrast readability**.
 - **🪟 Tiling-First Window Management**: Never breaks your window manager's tiling tree. Open apps side-by-side (e.g. Brave next to Foot or Kitty terminal) with proper resizing, gaps, and borders.
 - **⌨️ Toggleable Navigation Hints Bar (<kbd>K</kbd> / <kbd>?</kbd>)**: Built-in reference for tab navigation. Toggle on/off with <kbd>K</kbd>.
 - **🌤️ Local Weather Pill**: Real-time temperature, condition icon, and city name powered by the Open-Meteo API.
@@ -57,21 +66,25 @@
 
 ---
 
-## ⌨️ Keyboard Shortcuts Reference
+## ⌨️ Complete Keyboard Shortcuts Reference
 
-| Shortcut | Action |
-| :--- | :--- |
-| <kbd>S</kbd> or <kbd>/</kbd> | **Summon Quick Search** (instantly type a query or URL, <kbd>Enter</kbd> to go) |
-| <kbd>Esc</kbd> | **Dismiss Search or Close Menus** (returns focus to dashboard) |
-| <kbd>P</kbd> | **Open Browser Quick Menu** (History, Bookmarks, Downloads, Extensions) |
-| <kbd>Ctrl</kbd> + <kbd>P</kbd> | **Open Browser Settings** (`chrome://settings`) |
-| <kbd>Z</kbd> | **Toggle Zen Focus Mode** (switches between Zen and full widget dashboard) |
-| <kbd>K</kbd> / <kbd>H</kbd> / <kbd>?</kbd> | **Toggle Navigation Hints Bar** (shows/hides the top-right shortcut pills) |
-| <kbd>Ctrl</kbd> + <kbd>1</kbd>–<kbd>9</kbd> | Switch to tab 1 through 9 |
-| <kbd>Ctrl</kbd> + <kbd>Tab</kbd> | Cycle to next tab |
-| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Tab</kbd> | Cycle to previous tab |
-| <kbd>Ctrl</kbd> + <kbd>W</kbd> | Close active tab |
-| <kbd>Ctrl</kbd> + <kbd>T</kbd> | Open new tab |
+| Shortcut | Action | Scope |
+| :--- | :--- | :--- |
+| <kbd>S</kbd> or <kbd>/</kbd> | **Summon Quick Search** (instantly type a query or URL, <kbd>Enter</kbd> to go) | Dashboard |
+| <kbd>Esc</kbd> | **Dismiss Search or Close Active Menus/Modals** | Everywhere |
+| <kbd>P</kbd> | **Open Browser Quick Menu** | Dashboard |
+| <kbd>Ctrl</kbd> + <kbd>P</kbd> | **Open Browser Settings** (`chrome://settings`) | Dashboard |
+| <kbd>Z</kbd> | **Toggle Full Dashboard** (reveal shortcuts, tasks, and scratchpad) | Dashboard |
+| <kbd>K</kbd> / <kbd>H</kbd> / <kbd>?</kbd> | **Toggle Navigation Hints Bar** (shows/hides the top-right shortcut pills) | Dashboard |
+| <kbd>H</kbd> | Jump to **History** (`chrome://history`) | While Menu is open |
+| <kbd>D</kbd> | Jump to **Downloads** (`chrome://downloads`) | While Menu is open |
+| <kbd>B</kbd> | Jump to **Bookmarks** (`chrome://bookmarks`) | While Menu is open |
+| <kbd>E</kbd> | Jump to **Extensions** (`chrome://extensions`) | While Menu is open |
+| <kbd>Ctrl</kbd> + <kbd>1</kbd>–<kbd>9</kbd> | Switch directly to tab 1 through 9 | Browser |
+| <kbd>Ctrl</kbd> + <kbd>Tab</kbd> | Cycle forward to next tab | Browser |
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Tab</kbd> | Cycle backward to previous tab | Browser |
+| <kbd>Ctrl</kbd> + <kbd>W</kbd> | Close active tab | Browser |
+| <kbd>Ctrl</kbd> + <kbd>T</kbd> | Open new tab | Browser |
 
 ---
 
@@ -100,6 +113,10 @@ hl.window_rule({ match = { class = "brave-browser" }, fullscreen_state = "0 2" }
 ```ini
 windowrulev2 = fullscreenstate 0 2, class:^(brave-browser)$
 ```
+
+> **How it works:**
+> - `internal: 0` instructs Hyprland to treat the window as a normal tiled window (respecting gaps, borders, and window resizing).
+> - `client: 2` tells the browser it is in fullscreen, causing it to hide the address bar and omnibox header completely.
 
 ---
 
