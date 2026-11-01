@@ -286,33 +286,59 @@
   if (btnBrowserMenu) btnBrowserMenu.addEventListener('click', openBrowserMenu);
   if (btnCloseBrowserMenu) btnCloseBrowserMenu.addEventListener('click', closeBrowserMenu);
 
+  function openInternalUrl(url, label) {
+    startNavigationLoading(label, null);
+    if (chrome?.runtime?.sendMessage) {
+      chrome.runtime.sendMessage({ action: 'openUrl', url });
+    } else if (chrome?.tabs?.create) {
+      chrome.tabs.create({ url });
+    } else {
+      window.location.href = url;
+    }
+  }
+
+  function openBrowserSettings() {
+    startNavigationLoading('Settings', null);
+    if (chrome?.runtime?.sendMessage) {
+      chrome.runtime.sendMessage({ action: 'openSettings' });
+    } else if (chrome?.tabs?.create) {
+      chrome.tabs.create({ url: 'chrome://settings/' });
+    } else {
+      window.location.href = 'chrome://settings/';
+    }
+  }
+
   document.querySelectorAll('.menu-item').forEach((item) => {
     item.addEventListener('click', () => {
       const url = item.getAttribute('data-url');
       const label = item.querySelector('.menu-label')?.textContent || '';
-      if (url && chrome?.runtime?.sendMessage) {
-        startNavigationLoading(label, null);
-        chrome.runtime.sendMessage({ action: 'openUrl', url });
+      if (url) {
+        openInternalUrl(url, label);
         setTimeout(() => {
           closeBrowserMenu();
-          if (topProgressBar) topProgressBar.classList.remove('active');
-          if (loadingToast) loadingToast.classList.remove('active');
-        }, 600);
+        }, 400);
       }
     });
   });
 
   // --- 8. Instant Keyboard Claim & Workflow Shortcuts ---
   function claimFocus() {
-    window.focus();
-    if (document.activeElement && document.activeElement !== document.body && document.activeElement !== document.documentElement) {
-      document.activeElement.blur();
-    }
+    try {
+      if (!document.body.hasAttribute('tabindex')) {
+        document.body.setAttribute('tabindex', '-1');
+      }
+      document.body.focus();
+      window.focus();
+      if (document.activeElement && document.activeElement !== document.body && document.activeElement !== document.documentElement) {
+        document.activeElement.blur();
+      }
+    } catch (e) {}
   }
 
   claimFocus();
   window.addEventListener('load', claimFocus);
   window.addEventListener('mouseenter', claimFocus);
+  window.addEventListener('focus', claimFocus);
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
       claimFocus();
@@ -320,33 +346,22 @@
   });
 
   document.addEventListener('keydown', (e) => {
-    // 1. Settings shortcut: Comma (,) or Ctrl + Comma (Ctrl + ,)
-    // Matches VS Code, Sublime, and desktop app standards, completely leaving native Ctrl+P (Print) untouched!
-    if ((e.ctrlKey && e.key === ',') || (!isEditing && !e.ctrlKey && !e.altKey && !e.metaKey && e.key === ',')) {
-      e.preventDefault();
-      startNavigationLoading('Settings', null);
-      if (chrome?.runtime?.sendMessage) {
-        chrome.runtime.sendMessage({ action: 'openSettings' });
-        setTimeout(() => {
-          if (topProgressBar) topProgressBar.classList.remove('active');
-          if (loadingToast) loadingToast.classList.remove('active');
-        }, 600);
-      }
-      return;
-    }
+    // 0. Resolve active editing element safely BEFORE anything else
+    const activeEl = document.activeElement;
+    const activeTag = activeEl?.tagName?.toLowerCase();
+    const isEditing = activeTag === 'input' || activeTag === 'textarea' || activeEl?.isContentEditable === true;
 
-    const activeTag = document.activeElement?.tagName?.toLowerCase();
-    const isEditing = activeTag === 'input' || activeTag === 'textarea';
-
-    // 2. Escape key handling
+    // 1. Escape key handling (works even while editing or modal open)
     if (e.key === 'Escape') {
       let handled = false;
       if (browserMenuModal?.classList.contains('open')) {
         closeBrowserMenu();
         handled = true;
       }
-      if (shortcutModal?.classList.contains('open')) {
-        closeShortcutModal();
+      const sModal = document.getElementById('shortcutModal');
+      if (sModal?.classList.contains('open')) {
+        sModal.classList.remove('open');
+        claimFocus();
         handled = true;
       }
       if (searchSection?.classList.contains('search-active')) {
@@ -355,66 +370,119 @@
         claimFocus();
         handled = true;
       } else if (isEditing) {
-        document.activeElement.blur();
+        if (activeEl && typeof activeEl.blur === 'function') activeEl.blur();
         claimFocus();
         handled = true;
       }
-      if (handled) return;
+      if (handled) {
+        e.preventDefault();
+        return;
+      }
+    }
+
+    // CRITICAL: If typing inside any input or textarea, do NOT intercept or trigger shortcuts!
+    if (isEditing) return;
+
+    // Do NOT trigger single-key actions if modifier keys (Ctrl, Alt, Meta) are held!
+    // This strictly preserves native browser shortcuts (Ctrl+P print, Ctrl+S save, Ctrl+T new tab, etc.)
+    if (e.ctrlKey || e.altKey || e.metaKey) {
+      // Except Ctrl + Comma for Settings (standard developer preferences convention)
+      if (e.ctrlKey && !e.altKey && !e.metaKey && e.key === ',') {
+        e.preventDefault();
+        openBrowserSettings();
+      }
+      return;
+    }
+
+    // 2. Settings shortcut: Comma (,) alone
+    if (e.key === ',') {
+      e.preventDefault();
+      openBrowserSettings();
+      return;
     }
 
     // 3. When Browser Menu modal is open, quick-trigger items
     if (browserMenuModal?.classList.contains('open')) {
       const k = e.key.toLowerCase();
       const routeMap = {
-        h: { url: 'chrome://history', label: 'History' },
-        d: { url: 'chrome://downloads', label: 'Downloads' },
-        b: { url: 'chrome://bookmarks', label: 'Bookmarks' },
-        e: { url: 'chrome://extensions', label: 'Extensions' },
-        s: { url: 'chrome://settings', label: 'Settings' },
-        ',': { url: 'chrome://settings', label: 'Settings' }
+        h: { url: 'chrome://history/', label: 'History' },
+        d: { url: 'chrome://downloads/', label: 'Downloads' },
+        b: { url: 'chrome://bookmarks/', label: 'Bookmarks' },
+        e: { url: 'chrome://extensions/', label: 'Extensions' },
+        s: { url: 'chrome://settings/', label: 'Settings' },
+        ',': { url: 'chrome://settings/', label: 'Settings' }
       };
       if (routeMap[k] || routeMap[e.key]) {
         const item = routeMap[k] || routeMap[e.key];
         e.preventDefault();
-        startNavigationLoading(item.label, null);
-        chrome.runtime.sendMessage({ action: 'openUrl', url: item.url });
+        openInternalUrl(item.url, item.label);
         setTimeout(() => {
           closeBrowserMenu();
-          if (topProgressBar) topProgressBar.classList.remove('active');
-          if (loadingToast) loadingToast.classList.remove('active');
-        }, 600);
+        }, 400);
+        return;
       }
-      return;
     }
 
-    if (isEditing) return;
+    // 4. Quick Key Shortcuts (Single Key, Non-Conflicting, Outside Inputs)
+    const key = e.key.toLowerCase();
 
-    // Do NOT trigger single-key actions if modifier keys (Ctrl, Alt, Meta) are held!
-    // This guarantees we NEVER conflict with standard browser shortcuts (e.g. Ctrl+P print, Ctrl+S save, Ctrl+T new tab, etc.)
-    if (e.ctrlKey || e.altKey || e.metaKey) return;
-
-    // 4. Quick Key Shortcuts (Single Key, Non-Conflicting)
-    if (e.key === 's' || e.key === 'S' || e.key === '/') {
+    // S or / -> Open Search
+    if (key === 's' || key === '/') {
       e.preventDefault();
       if (searchSection && searchInput) {
         searchSection.classList.add('search-active');
         searchInput.focus();
         searchInput.select();
       }
-    } else if (e.key === 'p' || e.key === 'P') {
+      return;
+    }
+
+    // P -> Toggle Browser Quick Menu
+    if (key === 'p') {
       e.preventDefault();
       if (browserMenuModal?.classList.contains('open')) {
         closeBrowserMenu();
       } else {
         openBrowserMenu();
       }
-    } else if (e.key === 'z' || e.key === 'Z') {
+      return;
+    }
+
+    // Z -> Toggle Zen Mode
+    if (key === 'z') {
       e.preventDefault();
       applyZenMode(!isZenMode);
-    } else if (e.key === 'k' || e.key === 'K' || e.key === '?') {
+      return;
+    }
+
+    // K or ? -> Toggle Navigation Hints Bar
+    if (key === 'k' || e.key === '?') {
       e.preventDefault();
       showHints = !showHints;
       updateHintsVisibility();
+      return;
+    }
+
+    // Direct Browser Navigation Keys (H, D, B, E)
+    if (key === 'h') {
+      e.preventDefault();
+      openInternalUrl('chrome://history/', 'History');
+      return;
+    }
+    if (key === 'd') {
+      e.preventDefault();
+      openInternalUrl('chrome://downloads/', 'Downloads');
+      return;
+    }
+    if (key === 'b') {
+      e.preventDefault();
+      openInternalUrl('chrome://bookmarks/', 'Bookmarks');
+      return;
+    }
+    if (key === 'e') {
+      e.preventDefault();
+      openInternalUrl('chrome://extensions/', 'Extensions');
+      return;
     }
   });
 

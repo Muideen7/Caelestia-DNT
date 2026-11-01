@@ -26,13 +26,27 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   const winId = sender.tab?.windowId;
 
   if (msg.action === 'openSettings') {
-    chrome.tabs.create({ url: 'chrome://settings' });
+    const targetUrl = 'chrome://settings/';
+    if (sender.tab?.id) {
+      chrome.tabs.update(sender.tab.id, { url: targetUrl }).catch(() => {
+        chrome.tabs.create({ url: targetUrl });
+      });
+    } else {
+      chrome.tabs.create({ url: targetUrl });
+    }
     sendResponse({ status: 'settings_opened' });
     return true;
   }
 
   if (msg.action === 'openUrl' && msg.url) {
-    chrome.tabs.create({ url: msg.url });
+    const targetUrl = msg.url.endsWith('/') || msg.url.includes('?') ? msg.url : `${msg.url}/`;
+    if (sender.tab?.id) {
+      chrome.tabs.update(sender.tab.id, { url: targetUrl }).catch(() => {
+        chrome.tabs.create({ url: targetUrl });
+      });
+    } else {
+      chrome.tabs.create({ url: targetUrl });
+    }
     sendResponse({ status: 'url_opened' });
     return true;
   }
