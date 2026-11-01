@@ -116,6 +116,8 @@ windowrulev2 = fullscreenstate 0 2, class:^(google-chrome)$
 | :--- | :--- |
 | <kbd>Z</kbd> | Toggle **Zen Focus Mode** (hides search, widgets, and shortcuts) |
 | <kbd>K</kbd> / <kbd>H</kbd> / <kbd>?</kbd> | Toggle **Navigation Hints Bar** (shows/hides the top-right shortcut pills) |
+| <kbd>/</kbd> or <kbd>S</kbd> | Focus **Search Bar** (instant typing without mouse) |
+| <kbd>Esc</kbd> | Unfocus **Search Bar** (returns focus to shortcut mode) |
 | <kbd>Ctrl</kbd> + <kbd>1</kbd>–<kbd>9</kbd> | Switch to tab 1 through 9 |
 | <kbd>Ctrl</kbd> + <kbd>Tab</kbd> | Cycle to next tab |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Tab</kbd> | Cycle to previous tab |

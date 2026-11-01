@@ -232,15 +232,49 @@
     btnZenToggle.addEventListener('click', () => applyZenMode(!isZenMode));
   }
 
+  // --- Instant Keyboard Focus & Fast Workflow ---
+  function claimFocus() {
+    window.focus();
+    if (document.activeElement && document.activeElement !== document.body && document.activeElement !== document.documentElement) {
+      document.activeElement.blur();
+    }
+  }
+
+  claimFocus();
+  window.addEventListener('load', claimFocus);
+  window.addEventListener('mouseenter', claimFocus);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      claimFocus();
+    }
+  });
+
   document.addEventListener('keydown', (e) => {
     const activeTag = document.activeElement?.tagName?.toLowerCase();
-    if (activeTag === 'input' || activeTag === 'textarea') return;
+    const isEditing = activeTag === 'input' || activeTag === 'textarea';
+
+    // Escape always blurs any active input back to dashboard shortcut mode
+    if (e.key === 'Escape' && isEditing) {
+      document.activeElement.blur();
+      claimFocus();
+      return;
+    }
+
+    if (isEditing) return;
 
     if (e.key === 'z' || e.key === 'Z') {
+      e.preventDefault();
       applyZenMode(!isZenMode);
     } else if (e.key === 'k' || e.key === 'K' || e.key === 'h' || e.key === 'H' || e.key === '?') {
+      e.preventDefault();
       showHints = !showHints;
       updateHintsVisibility();
+    } else if (e.key === '/' || e.key === 's' || e.key === 'S') {
+      if (searchInput && !isZenMode) {
+        e.preventDefault();
+        searchInput.focus();
+        searchInput.select();
+      }
     }
   });
 
