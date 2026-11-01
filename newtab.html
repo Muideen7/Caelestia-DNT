@@ -11,6 +11,17 @@
   <link rel="stylesheet" href="newtab.css">
 </head>
 <body>
+  <!-- Top Material 3 Linear Progress Bar -->
+  <div class="m3-progress-bar" id="topProgressBar">
+    <div class="m3-progress-line"></div>
+  </div>
+
+  <!-- Navigation Toast / Status Pill -->
+  <div class="loading-toast" id="loadingToast">
+    <span class="material-symbols-rounded spin">progress_activity</span>
+    <span id="loadingToastText">Navigating...</span>
+  </div>
+
   <!-- Wallpaper & Dynamic Glassmorphism Background -->
   <div class="wallpaper-bg" id="wallpaperBg"></div>
   <div class="wallpaper-overlay" id="wallpaperOverlay"></div>
@@ -79,7 +90,7 @@
         <input type="text" class="search-input" id="searchInput" placeholder="Type a search query or URL... (Press Esc to close)" autocomplete="off">
 
         <button type="submit" class="search-submit-btn" title="Search">
-          <span class="material-symbols-rounded">arrow_forward</span>
+          <span class="material-symbols-rounded" id="searchSubmitIcon">arrow_forward</span>
         </button>
       </form>
 

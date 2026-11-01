@@ -1,5 +1,5 @@
 // Caelestia Clean New Tab logic
-// Keyboard-first flow: Zen mode default, S/slash quick search, P browser menu, and dynamic Caelestia theming.
+// Keyboard-first flow: Zen mode default, S/slash quick search, P browser menu, loading states, and dynamic Caelestia theming.
 
 (() => {
   'use strict';
@@ -216,7 +216,6 @@
   const searchSection = document.getElementById('searchSection');
   const searchInput = document.getElementById('searchInput');
 
-  // Default to true for every new tab to guarantee a distraction-free start
   let isZenMode = localStorage.getItem('caelestia_zen') !== 'false';
 
   function applyZenMode(enabled) {
@@ -227,7 +226,6 @@
       btnZenToggle.classList.toggle('active', enabled);
       btnZenToggle.title = enabled ? 'Exit Zen Mode (Z)' : 'Enter Zen Mode (Z)';
     }
-    // Close quick search popup if leaving Zen mode
     if (!enabled && searchSection) {
       searchSection.classList.remove('search-active');
     }
@@ -239,7 +237,35 @@
 
   applyZenMode(isZenMode);
 
-  // --- 6. Browser Quick Menu Modal (Shortcut: P or Button) ---
+  // --- 6. Navigation Loading Feedback State ---
+  const topProgressBar = document.getElementById('topProgressBar');
+  const loadingToast = document.getElementById('loadingToast');
+  const loadingToastText = document.getElementById('loadingToastText');
+  const searchSubmitIcon = document.getElementById('searchSubmitIcon');
+
+  function startNavigationLoading(destinationLabel, targetUrl) {
+    if (topProgressBar) topProgressBar.classList.add('active');
+    if (loadingToast && loadingToastText) {
+      loadingToastText.textContent = destinationLabel ? `Opening ${destinationLabel}...` : 'Navigating...';
+      loadingToast.classList.add('active');
+    }
+
+    if (searchSubmitIcon) {
+      searchSubmitIcon.textContent = 'progress_activity';
+      searchSubmitIcon.classList.add('spin');
+    }
+
+    const submitBtn = searchForm?.querySelector('.search-submit-btn');
+    if (submitBtn) submitBtn.classList.add('loading');
+
+    if (targetUrl) {
+      setTimeout(() => {
+        window.location.href = targetUrl;
+      }, 50);
+    }
+  }
+
+  // --- 7. Browser Quick Menu Modal (Shortcut: P or Button) ---
   const btnBrowserMenu = document.getElementById('btnBrowserMenu');
   const browserMenuModal = document.getElementById('browserMenuModal');
   const btnCloseBrowserMenu = document.getElementById('btnCloseBrowserMenu');
@@ -263,14 +289,20 @@
   document.querySelectorAll('.menu-item').forEach((item) => {
     item.addEventListener('click', () => {
       const url = item.getAttribute('data-url');
+      const label = item.querySelector('.menu-label')?.textContent || '';
       if (url && chrome?.runtime?.sendMessage) {
+        startNavigationLoading(label, null);
         chrome.runtime.sendMessage({ action: 'openUrl', url });
-        closeBrowserMenu();
+        setTimeout(() => {
+          closeBrowserMenu();
+          if (topProgressBar) topProgressBar.classList.remove('active');
+          if (loadingToast) loadingToast.classList.remove('active');
+        }, 600);
       }
     });
   });
 
-  // --- 7. Instant Keyboard Claim & Workflow Shortcuts ---
+  // --- 8. Instant Keyboard Claim & Workflow Shortcuts ---
   function claimFocus() {
     window.focus();
     if (document.activeElement && document.activeElement !== document.body && document.activeElement !== document.documentElement) {
@@ -291,8 +323,13 @@
     // 1. Ctrl + P: Open Browser Settings directly
     if (e.ctrlKey && (e.key === 'p' || e.key === 'P')) {
       e.preventDefault();
+      startNavigationLoading('Settings', null);
       if (chrome?.runtime?.sendMessage) {
         chrome.runtime.sendMessage({ action: 'openSettings' });
+        setTimeout(() => {
+          if (topProgressBar) topProgressBar.classList.remove('active');
+          if (loadingToast) loadingToast.classList.remove('active');
+        }, 600);
       }
       return;
     }
@@ -327,32 +364,29 @@
     // 3. When Browser Menu modal is open, quick-trigger items
     if (browserMenuModal?.classList.contains('open')) {
       const k = e.key.toLowerCase();
-      if (k === 'h') {
+      const routeMap = {
+        h: { url: 'chrome://history', label: 'History' },
+        d: { url: 'chrome://downloads', label: 'Downloads' },
+        b: { url: 'chrome://bookmarks', label: 'Bookmarks' },
+        e: { url: 'chrome://extensions', label: 'Extensions' }
+      };
+      if (routeMap[k]) {
         e.preventDefault();
-        chrome.runtime.sendMessage({ action: 'openUrl', url: 'chrome://history' });
-        closeBrowserMenu();
-      } else if (k === 'd') {
-        e.preventDefault();
-        chrome.runtime.sendMessage({ action: 'openUrl', url: 'chrome://downloads' });
-        closeBrowserMenu();
-      } else if (k === 'b') {
-        e.preventDefault();
-        chrome.runtime.sendMessage({ action: 'openUrl', url: 'chrome://bookmarks' });
-        closeBrowserMenu();
-      } else if (k === 'e') {
-        e.preventDefault();
-        chrome.runtime.sendMessage({ action: 'openUrl', url: 'chrome://extensions' });
-        closeBrowserMenu();
+        startNavigationLoading(routeMap[k].label, null);
+        chrome.runtime.sendMessage({ action: 'openUrl', url: routeMap[k].url });
+        setTimeout(() => {
+          closeBrowserMenu();
+          if (topProgressBar) topProgressBar.classList.remove('active');
+          if (loadingToast) loadingToast.classList.remove('active');
+        }, 600);
       }
       return;
     }
 
-    // If typing inside an input or textarea, don't trigger general shortcuts
     if (isEditing) return;
 
     // 4. Quick Key Shortcuts
     if (e.key === 's' || e.key === 'S' || e.key === '/') {
-      // S or / pops up search input instantly in Zen mode (or focuses search in normal mode)
       e.preventDefault();
       if (searchSection && searchInput) {
         searchSection.classList.add('search-active');
@@ -360,7 +394,6 @@
         searchInput.select();
       }
     } else if (e.key === 'p' || e.key === 'P') {
-      // P opens the Browser Quick Menu
       e.preventDefault();
       if (browserMenuModal?.classList.contains('open')) {
         closeBrowserMenu();
@@ -377,7 +410,7 @@
     }
   });
 
-  // --- 8. Search Engine Selector & Submission ---
+  // --- 9. Search Engine Selector & Submission ---
   const ENGINES = {
     google: { name: 'Google', icon: 'search', url: 'https://www.google.com/search?q=' },
     brave: { name: 'Brave Search', icon: 'shield', url: 'https://search.brave.com/search?q=' },
@@ -436,17 +469,22 @@
         /^[a-zA-Z0-9-]+\.[a-zA-Z]{2,}(\/.*)?$/i.test(query) && !query.includes(' ')
       );
 
+      let dest = '';
+      let label = '';
       if (isUrl) {
-        const dest = /^https?:\/\//i.test(query) ? query : `https://${query}`;
-        window.location.href = dest;
+        dest = /^https?:\/\//i.test(query) ? query : `https://${query}`;
+        label = query;
       } else {
         const engine = ENGINES[currentEngineKey] || ENGINES.google;
-        window.location.href = `${engine.url}${encodeURIComponent(query)}`;
+        dest = `${engine.url}${encodeURIComponent(query)}`;
+        label = `${engine.name}: "${query}"`;
       }
+
+      startNavigationLoading(label, dest);
     });
   }
 
-  // --- 9. Quick Shortcuts Grid ---
+  // --- 10. Quick Shortcuts Grid ---
   const DEFAULT_SHORTCUTS = [
     { id: '1', title: 'YouTube', url: 'https://youtube.com' },
     { id: '2', title: 'Reddit', url: 'https://reddit.com' },
@@ -493,6 +531,10 @@
       const a = document.createElement('a');
       a.className = 'shortcut-item';
       a.href = item.url;
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        startNavigationLoading(item.title, item.url);
+      });
 
       const iconBox = document.createElement('div');
       iconBox.className = 'shortcut-icon-box';
@@ -598,7 +640,7 @@
 
   renderShortcuts();
 
-  // --- 10. Quick Tasks Widget ---
+  // --- 11. Quick Tasks Widget ---
   const DEFAULT_TODOS = [
     { id: 1, text: 'Clean keyboard-centric dashboard', done: true },
     { id: 2, text: 'Press S to search, P for menu', done: false },
@@ -696,7 +738,7 @@
 
   renderTodos();
 
-  // --- 11. Scratchpad Widget (Auto-Save) ---
+  // --- 12. Scratchpad Widget (Auto-Save) ---
   const noteArea = document.getElementById('noteArea');
   const noteStatus = document.getElementById('noteStatus');
 
