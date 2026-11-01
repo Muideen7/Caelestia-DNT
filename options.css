@@ -407,3 +407,163 @@ input:checked + .slider:before {
   opacity: 1;
   transform: translateY(0);
 }
+
+/* Wallpaper Upload & Presets Styling */
+.wallpaper-upload-box {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.drop-zone {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  border: 2px dashed var(--md-sys-color-outline-variant);
+  border-radius: var(--radius-md);
+  background-color: var(--md-sys-color-surface-container);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.drop-zone:hover, .drop-zone.dragover {
+  border-color: var(--md-sys-color-primary);
+  background-color: var(--md-sys-color-surface-container-high);
+}
+
+.drop-icon {
+  font-size: 36px;
+  color: var(--md-sys-color-primary);
+}
+
+.drop-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.drop-text strong {
+  font-size: 14px;
+  color: var(--md-sys-color-on-surface);
+}
+
+.drop-text span {
+  font-size: 12px;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.wallpaper-preview-bar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  background-color: var(--md-sys-color-surface-container-high);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.wallpaper-preview-bar img {
+  width: 56px;
+  height: 38px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--md-sys-color-outline);
+}
+
+.wallpaper-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.wallpaper-info span {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface);
+}
+
+.extracted-swatches {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.color-swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.btn.sm {
+  padding: 5px 12px;
+  font-size: 12px;
+}
+
+/* Presets Section */
+.presets-section {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.presets-section label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--md-sys-color-on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.presets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+}
+
+.preset-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 8px;
+  border-radius: var(--radius-md);
+  background-color: var(--md-sys-color-surface-container);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--md-sys-color-on-surface);
+  font-family: inherit;
+}
+
+.preset-btn:hover {
+  background-color: var(--md-sys-color-surface-container-high);
+  border-color: var(--md-sys-color-primary);
+  transform: translateY(-2px);
+}
+
+.preset-btn.active {
+  border-color: var(--md-sys-color-primary);
+  background-color: var(--md-sys-color-surface-container-highest);
+  box-shadow: 0 0 0 2px var(--md-sys-color-primary);
+}
+
+.preset-preview {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 2px solid var(--md-sys-color-outline);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+.preset-btn span {
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+}
+

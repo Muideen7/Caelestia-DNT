@@ -45,7 +45,106 @@
         </div>
       </section>
 
-      <!-- 2. Startup & Views -->
+      <!-- 2. Theming & Wallpaper -->
+      <section class="options-card">
+        <div class="card-header">
+          <span class="material-symbols-rounded icon">palette</span>
+          <h2>Theming & Wallpaper</h2>
+        </div>
+        <p class="card-desc">Choose how Caelestia-DNT styles your new tab colors across all operating systems.</p>
+
+        <!-- Theme Mode Selection -->
+        <div class="field-group">
+          <label>Theme Source</label>
+          <div class="radio-cards">
+            <label class="radio-card">
+              <input type="radio" name="themeSource" value="caelestia-dynamic" id="themeSourceDynamic" checked>
+              <div class="radio-card-content">
+                <span class="material-symbols-rounded">sync</span>
+                <div>
+                  <strong>Caelestia Dynamic (Default)</strong>
+                  <p>Auto-syncs live with Caelestia Shell and desktop theme files (Linux / Hyprland).</p>
+                </div>
+              </div>
+            </label>
+
+            <label class="radio-card">
+              <input type="radio" name="themeSource" value="wallpaper-upload" id="themeSourceWallpaper">
+              <div class="radio-card-content">
+                <span class="material-symbols-rounded">image</span>
+                <div>
+                  <strong>Wallpaper Color Extractor (Any OS)</strong>
+                  <p>Upload or drop any desktop wallpaper. Caelestia-DNT extracts full Material You colors in-browser.</p>
+                </div>
+              </div>
+            </label>
+
+            <label class="radio-card">
+              <input type="radio" name="themeSource" value="preset" id="themeSourcePreset">
+              <div class="radio-card-content">
+                <span class="material-symbols-rounded">format_paint</span>
+                <div>
+                  <strong>Designer Color Presets</strong>
+                  <p>Pick from curated aesthetic color schemes like Catppuccin, Tokyo Night, Nord Frost, and more.</p>
+                </div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Wallpaper Upload Box (revealed when Wallpaper Color Extractor is active) -->
+        <div class="wallpaper-upload-box" id="wallpaperUploadBox" style="display: none;">
+          <label class="drop-zone" id="wallpaperDropZone">
+            <input type="file" id="wallpaperFileInput" accept="image/*" style="display: none;">
+            <span class="material-symbols-rounded drop-icon">add_photo_alternate</span>
+            <div class="drop-text">
+              <strong>Click to choose wallpaper image or drag & drop here</strong>
+              <span>Supports PNG, JPG, WEBP. Extracted colors apply immediately to all new tabs.</span>
+            </div>
+          </label>
+          <div class="wallpaper-preview-bar" id="wallpaperPreviewBar" style="display: none;">
+            <img id="wallpaperThumb" src="" alt="Wallpaper preview">
+            <div class="wallpaper-info">
+              <span id="wallpaperFilename">wallpaper.jpg</span>
+              <div class="extracted-swatches" id="extractedSwatches"></div>
+            </div>
+            <button class="btn secondary sm" id="btnResetWallpaper">Reset</button>
+          </div>
+        </div>
+
+        <!-- Curated Presets Grid (revealed when Designer Presets is active) -->
+        <div class="presets-section" id="presetsSection" style="display: none;">
+          <label>Select a Preset Scheme</label>
+          <div class="presets-grid" id="presetsGrid">
+            <button type="button" class="preset-btn" data-preset="caelestia-violet">
+              <div class="preset-preview" style="background: linear-gradient(135deg, #130d0b 50%, #f9b7a9 50%);"></div>
+              <span>Caelestia Violet</span>
+            </button>
+            <button type="button" class="preset-btn" data-preset="catppuccin-mocha">
+              <div class="preset-preview" style="background: linear-gradient(135deg, #1e1e2e 50%, #cba6f7 50%);"></div>
+              <span>Catppuccin Mocha</span>
+            </button>
+            <button type="button" class="preset-btn" data-preset="tokyo-night">
+              <div class="preset-preview" style="background: linear-gradient(135deg, #1a1b26 50%, #7aa2f7 50%);"></div>
+              <span>Tokyo Night</span>
+            </button>
+            <button type="button" class="preset-btn" data-preset="nord-frost">
+              <div class="preset-preview" style="background: linear-gradient(135deg, #2e3440 50%, #88c0d0 50%);"></div>
+              <span>Nord Frost</span>
+            </button>
+            <button type="button" class="preset-btn" data-preset="forest-matcha">
+              <div class="preset-preview" style="background: linear-gradient(135deg, #161c15 50%, #a6d189 50%);"></div>
+              <span>Forest Matcha</span>
+            </button>
+            <button type="button" class="preset-btn" data-preset="sunset-ember">
+              <div class="preset-preview" style="background: linear-gradient(135deg, #181210 50%, #ff8a65 50%);"></div>
+              <span>Sunset Ember</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Startup & Views -->
       <section class="options-card">
         <div class="card-header">
           <span class="material-symbols-rounded icon">view_quilt</span>
@@ -159,6 +258,7 @@
     <div class="save-toast" id="saveToast">Settings saved successfully!</div>
   </div>
 
+  <script src="theme-engine.js"></script>
   <script src="options.js"></script>
 </body>
 </html>

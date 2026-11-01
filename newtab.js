@@ -13,9 +13,10 @@
     return;
   }
 
-  // --- 1. Dynamic Caelestia Theme & Transparency Sync ---
+  // --- 1. Dynamic Theme, Presets, and Wallpaper Extraction Sync ---
   const themeModeEl = document.getElementById('themeMode');
   const themeNameEl = document.getElementById('themeName');
+  const engine = window.CaelestiaThemeEngine;
 
   function camelToKebab(str) {
     return str.replace(/([a-z0-9]|(?=[A-Z]))([A-Z])/g, '$1-$2').toLowerCase();
@@ -24,6 +25,45 @@
   let lastThemeJsonStr = '';
 
   async function loadCaelestiaTheme() {
+    const themeSource = localStorage.getItem('caelestia_theme_source') || 'caelestia-dynamic';
+
+    // 1. Preset Scheme Mode
+    if (themeSource === 'preset') {
+      const presetKey = localStorage.getItem('caelestia_theme_preset') || 'caelestia-violet';
+      const preset = engine?.PRESETS?.[presetKey];
+      if (preset) {
+        const root = document.documentElement;
+        root.setAttribute('data-theme', preset.mode || 'dark');
+        if (themeModeEl) themeModeEl.textContent = 'Preset';
+        if (themeNameEl) themeNameEl.textContent = preset.name;
+        if (engine?.applyPaletteToRoot) {
+          engine.applyPaletteToRoot(preset.colours, root);
+        }
+      }
+      return;
+    }
+
+    // 2. Custom Wallpaper Color Extractor Mode
+    if (themeSource === 'wallpaper-upload') {
+      const savedPaletteStr = localStorage.getItem('caelestia_custom_palette');
+      if (savedPaletteStr) {
+        try {
+          const palette = JSON.parse(savedPaletteStr);
+          const root = document.documentElement;
+          root.setAttribute('data-theme', 'dark');
+          if (themeModeEl) themeModeEl.textContent = 'Custom';
+          if (themeNameEl) themeNameEl.textContent = 'Wallpaper Extracted';
+          if (engine?.applyPaletteToRoot) {
+            engine.applyPaletteToRoot(palette, root);
+          }
+          return;
+        } catch (e) {
+          console.debug('Failed to parse custom palette:', e);
+        }
+      }
+    }
+
+    // 3. Caelestia Dynamic Mode (Linux / Caelestia Shell JSON sync)
     try {
       const resp = await fetch(`./caelestia-theme.json?t=${Date.now()}`);
       if (!resp.ok) return;
@@ -88,12 +128,26 @@
     updateClock();
   }
 
-  // Display name is configured exclusively via Options page & Onboarding
+  // Display name & theme changes configured via Options page & Onboarding
   if (chrome?.storage?.onChanged) {
     chrome.storage.onChanged.addListener((changes, area) => {
-      if (area === 'local' && changes.caelestia_username) {
-        localStorage.setItem('caelestia_username', changes.caelestia_username.newValue);
-        updateClock();
+      if (area === 'local') {
+        if (changes.caelestia_username) {
+          localStorage.setItem('caelestia_username', changes.caelestia_username.newValue);
+          updateClock();
+        }
+        if (changes.caelestia_theme_source || changes.caelestia_theme_preset || changes.caelestia_custom_palette) {
+          if (changes.caelestia_theme_source) {
+            localStorage.setItem('caelestia_theme_source', changes.caelestia_theme_source.newValue);
+          }
+          if (changes.caelestia_theme_preset) {
+            localStorage.setItem('caelestia_theme_preset', changes.caelestia_theme_preset.newValue);
+          }
+          if (changes.caelestia_custom_palette) {
+            localStorage.setItem('caelestia_custom_palette', JSON.stringify(changes.caelestia_custom_palette.newValue));
+          }
+          loadCaelestiaTheme();
+        }
       }
     });
   }
@@ -101,6 +155,9 @@
   window.addEventListener('storage', (e) => {
     if (e.key === 'caelestia_username') {
       updateClock();
+    }
+    if (e.key && e.key.startsWith('caelestia_theme_') || e.key === 'caelestia_custom_palette') {
+      loadCaelestiaTheme();
     }
   });
 
