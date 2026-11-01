@@ -159,11 +159,20 @@
     const surfaceMid = getHex(colors.surfaceContainer) || (isDark ? '#221715' : '#f5e7e4');
     const surfaceHigh = getHex(colors.surfaceContainerHigh) || (isDark ? '#291d1a' : '#efe1de');
     
-    const onSurface = isDark ? (getHex(colors.onSurface) || '#f9e0db') : '#1c1b1f';
-    const onSurfaceVar = isDark ? (getHex(colors.onSurfaceVariant) || '#bca6a2') : '#444140';
+    // High-contrast text & base tokens
+    const onSurface = isDark ? (getHex(colors.onSurface) || '#f9e0db') : '#0f0e11';
+    const onSurfaceVar = isDark ? (getHex(colors.onSurfaceVariant) || '#d6c4c0') : '#363432';
     const outline = getHex(colors.outlineVariant) || (isDark ? '#554441' : '#d2c2bf');
     const primary = getHex(colors.primary) || (isDark ? '#f9b7a9' : '#8c4e44');
     const onPrimary = isDark ? (getHex(colors.onPrimary) || '#61342a') : '#ffffff';
+
+    // Dedicated high-contrast semantic icon colors for light & dark modes
+    const folderColor = isDark ? '#ffd488' : '#b25e00';
+    const starColor = isDark ? '#ffd54f' : '#b7791f';
+    const branchColor = isDark ? (getHex(colors.primary) || '#f9b7a9') : '#8c4e44';
+    const openColor = isDark ? '#56d364' : '#1a7f37';
+    const mergedColor = isDark ? '#d2a8ff' : '#8250df';
+    const closedColor = isDark ? '#ff7b72' : '#cf222e';
 
     return `
       /* --- GitHub Primer & Modern Tokens Overrides --- */
@@ -193,6 +202,12 @@
         --color-fg-subtle: ${onSurfaceVar} !important;
         --color-accent-fg: ${primary} !important;
         --color-accent-emphasis: ${primary} !important;
+        --color-icon-directory: ${folderColor} !important;
+        --color-icon-code: ${primary} !important;
+        --iconColor-default: ${onSurface} !important;
+        --iconColor-muted: ${onSurfaceVar} !important;
+        --iconColor-accent: ${primary} !important;
+        --color-btn-icon: ${onSurface} !important;
         --color-btn-bg: ${surfaceMid} !important;
         --color-btn-border: ${outline} !important;
         --color-btn-text: ${onSurface} !important;
@@ -206,7 +221,7 @@
         color: ${onSurface} !important;
       }
 
-      /* GitHub App Header Bar */
+      /* GitHub App Header Bar & Header Icons */
       header.AppHeader, 
       header.Header, 
       .AppHeader-globalBar, 
@@ -218,26 +233,162 @@
         color: ${onSurface} !important;
       }
 
-      header svg, .AppHeader svg, header .octicon {
+      header svg, 
+      .AppHeader svg, 
+      header .octicon,
+      .AppHeader .octicon,
+      .Header-link svg,
+      .octicon-mark-github {
         fill: ${onSurface} !important;
         color: ${onSurface} !important;
       }
 
-      /* Repository Navigation Bar */
+      /* Baseline Octicon fill behavior */
+      .octicon,
+      svg.octicon,
+      [class*="octicon-"] {
+        fill: currentColor !important;
+      }
+
+      /* Directory / Folder Icons (Vibrant & High Contrast) */
+      .octicon-file-directory,
+      .octicon-file-directory-fill,
+      .octicon-file-directory-open-fill,
+      .octicon-file-submodule,
+      svg[aria-label="Directory"],
+      svg[aria-label="Directory"] path,
+      svg[aria-label="Submodule"],
+      .react-directory-row .octicon-file-directory-fill {
+        fill: ${folderColor} !important;
+        color: ${folderColor} !important;
+      }
+
+      /* File Icons (Clean & Visible) */
+      .octicon-file,
+      .octicon-file-code,
+      .octicon-file-badge,
+      .octicon-file-binary,
+      svg[aria-label="File"],
+      svg[aria-label="File"] path,
+      .react-directory-row .octicon-file {
+        fill: ${onSurface} !important;
+        color: ${onSurface} !important;
+        opacity: 0.9 !important;
+      }
+
+      /* Star Icons (Bright Radiant Gold) */
+      .octicon-star,
+      .octicon-star-fill,
+      svg[aria-label="Star"],
+      .starred .octicon-star,
+      .btn[data-hydro-click*="star"] .octicon {
+        fill: ${starColor} !important;
+        color: ${starColor} !important;
+      }
+
+      /* Branch, Commit, History, Tags & Repo Icons */
+      .octicon-git-branch,
+      .octicon-git-commit,
+      .octicon-history,
+      .octicon-tag,
+      .octicon-repo,
+      .octicon-repo-forked,
+      .octicon-eye {
+        fill: ${branchColor} !important;
+        color: ${branchColor} !important;
+      }
+
+      /* Status Icons (Issues, PRs, Checks) */
+      .octicon-issue-opened,
+      .octicon-git-pull-request,
+      .octicon-check,
+      .octicon-check-circle-fill,
+      .color-fg-success .octicon {
+        fill: ${openColor} !important;
+        color: ${openColor} !important;
+      }
+
+      .octicon-issue-closed,
+      .octicon-git-merge,
+      .octicon-skip,
+      .color-fg-done .octicon {
+        fill: ${mergedColor} !important;
+        color: ${mergedColor} !important;
+      }
+
+      .octicon-x,
+      .octicon-x-circle-fill,
+      .octicon-issue-draft,
+      .color-fg-danger .octicon {
+        fill: ${closedColor} !important;
+        color: ${closedColor} !important;
+      }
+
+      /* Navigation Tabs & Badges (Code, Issues, PRs, Actions, Settings) */
       .pagehead, .subnav, .subnav-bordered, .UnderlineNav, .UnderlineNav-body, nav[aria-label="Repository"] {
         background-color: ${surfaceLow} !important;
         border-color: ${outline} !important;
         color: ${onSurface} !important;
       }
 
-      .UnderlineNav-item, .UnderlineNav-item .octicon {
+      .UnderlineNav-item {
+        color: ${onSurface} !important;
+      }
+
+      .UnderlineNav-item .octicon {
         color: ${onSurfaceVar} !important;
         fill: ${onSurfaceVar} !important;
       }
 
-      .UnderlineNav-item[aria-current="page"], .UnderlineNav-item.selected {
+      .UnderlineNav-item[aria-current="page"] .octicon, 
+      .UnderlineNav-item.selected .octicon,
+      .UnderlineNav-item:hover .octicon {
+        color: ${primary} !important;
+        fill: ${primary} !important;
+      }
+
+      .UnderlineNav-item[aria-current="page"], 
+      .UnderlineNav-item.selected {
         color: ${onSurface} !important;
         border-bottom-color: ${primary} !important;
+      }
+
+      .UnderlineNav-item .Counter,
+      .Counter {
+        background-color: ${surfaceHigh} !important;
+        color: ${onSurface} !important;
+        border: 1px solid ${outline} !important;
+      }
+
+      /* Button & Action Visual Icons */
+      .btn, 
+      .Button, 
+      .btn-sm,
+      .Button--secondary {
+        background-color: ${surfaceMid} !important;
+        border-color: ${outline} !important;
+        color: ${onSurface} !important;
+      }
+
+      .btn .octicon,
+      .Button .octicon,
+      .Button-leadingVisual .octicon,
+      .Button-trailingVisual .octicon,
+      .Button-visual .octicon {
+        fill: currentColor !important;
+      }
+
+      .btn-primary, 
+      .Button--primary {
+        background-color: ${primary} !important;
+        border-color: ${primary} !important;
+        color: ${onPrimary} !important;
+      }
+
+      .btn-primary .octicon,
+      .Button--primary .octicon {
+        fill: ${onPrimary} !important;
+        color: ${onPrimary} !important;
       }
 
       /* File Explorer Table & Commit Bar */
@@ -261,26 +412,40 @@
         background-color: ${surfaceHigh} !important;
       }
 
+      /* React Tree rows */
       .react-directory-row, 
       .react-directory-filename-column, 
       .react-directory-commit-age,
-      table.files td,
-      .react-directory-truncate a {
+      table.files td {
         color: ${onSurface} !important;
       }
 
-      h1, h2, h3, h4, h5, h6, p, span, div {
-        color: ${onSurface};
-      }
-
-      a.Link--primary, a.color-fg-default {
+      /* Text readability without blanket div/span pollution */
+      p, li, td, th, h1, h2, h3, h4, h5, h6, label {
         color: ${onSurface} !important;
       }
 
-      a, a.Link--secondary, a.color-fg-muted {
+      .color-fg-muted,
+      .color-fg-subtle,
+      .text-small,
+      .f6,
+      .commit-author {
+        color: ${onSurfaceVar} !important;
+      }
+
+      a.Link--primary, 
+      a.color-fg-default,
+      .react-directory-truncate a,
+      .wb-break-all a {
+        color: ${onSurface} !important;
+      }
+
+      a.Link--secondary, 
+      a.color-fg-muted {
         color: ${primary} !important;
       }
 
+      /* Markdown & Code Blocks */
       .markdown-body {
         background-color: ${bg} !important;
         color: ${onSurface} !important;
