@@ -161,6 +161,45 @@
     }
   });
 
+  function updateClock() {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    if (clockTimeEl) {
+      clockTimeEl.textContent = `${hours}:${minutes}`;
+    }
+
+    const h = now.getHours();
+    let salutation = 'Good Day';
+    if (h >= 5 && h < 12) {
+      salutation = 'Good Morning';
+    } else if (h >= 12 && h < 17) {
+      salutation = 'Good Afternoon';
+    } else if (h >= 17 && h < 22) {
+      salutation = 'Good Evening';
+    } else {
+      salutation = 'Good Night';
+    }
+
+    const user = getUsername();
+    if (greetingSalutationEl) {
+      greetingSalutationEl.textContent = salutation;
+    }
+    if (greetingUsernameEl && !greetingUsernameEl.classList.contains('editing')) {
+      greetingUsernameEl.textContent = user;
+    } else if (greetingTextEl && !greetingSalutationEl) {
+      greetingTextEl.textContent = `${salutation}, ${user}`;
+    }
+
+    if (dateTextEl) {
+      dateTextEl.textContent = now.toLocaleDateString(undefined, {
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric',
+      });
+    }
+  }
+
   // --- Dynamic Per-Tab Quotes (Donghua, Anime, Philosophy, Science, Online) ---
   const quotesEngine = window.CaelestiaQuotes;
 
