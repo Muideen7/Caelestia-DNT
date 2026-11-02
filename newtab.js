@@ -367,26 +367,18 @@
       searchSection.classList.remove('search-active');
     }
 
-    // Toggle immersive fullscreen to hide address bar & tabs
+    // Toggle immersive browser window fullscreen (F11) to hide address bar & tabs
     if (userTriggered && isZenFullscreenEnabled) {
       try {
-        if (enabled) {
-          if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
-            await document.documentElement.requestFullscreen();
-          } else if (chrome?.runtime?.sendMessage) {
-            chrome.runtime.sendMessage({ action: 'setFullscreen', fullscreen: true });
-          }
-        } else {
-          if (document.fullscreenElement && document.exitFullscreen) {
-            await document.exitFullscreen();
-          } else if (chrome?.runtime?.sendMessage) {
-            chrome.runtime.sendMessage({ action: 'setFullscreen', fullscreen: false });
-          }
-        }
-      } catch (err) {
         if (chrome?.runtime?.sendMessage) {
           chrome.runtime.sendMessage({ action: 'setFullscreen', fullscreen: enabled });
+        } else if (enabled && !document.fullscreenElement && document.documentElement.requestFullscreen) {
+          await document.documentElement.requestFullscreen();
+        } else if (!enabled && document.fullscreenElement && document.exitFullscreen) {
+          await document.exitFullscreen();
         }
+      } catch (err) {
+        console.debug('Fullscreen toggle error:', err);
       }
     }
   }
@@ -396,6 +388,23 @@
   }
 
   applyZenMode(isZenMode, false);
+
+  // Sync Zen Mode whenever native window fullscreen (F11 / Esc) changes
+  if (window.matchMedia) {
+    window.matchMedia('(display-mode: fullscreen)').addEventListener('change', (e) => {
+      if (isZenFullscreenEnabled && e.matches !== isZenMode) {
+        applyZenMode(e.matches, false);
+      }
+    });
+  }
+  document.addEventListener('fullscreenchange', () => {
+    if (isZenFullscreenEnabled) {
+      const isFs = !!document.fullscreenElement;
+      if (isFs !== isZenMode) {
+        applyZenMode(isFs, false);
+      }
+    }
+  });
 
   // --- 6. Navigation Loading Feedback State ---
   const topProgressBar = document.getElementById('topProgressBar');
@@ -856,8 +865,8 @@
       return;
     }
 
-    // Z -> Toggle Zen Mode (Enters/exits fullscreen & hides address bar)
-    if (key === 'z') {
+    // F11 or Z -> Toggle Zen Mode & Fullscreen (Conceals address bar & omnibox)
+    if (e.key === 'F11' || key === 'z') {
       e.preventDefault();
       applyZenMode(!isZenMode, true);
       return;
