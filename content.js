@@ -548,19 +548,192 @@
     `;
   }
 
+  function buildUniversalCSS(colors, isDark) {
+    const bg = getHex(colors.background) || getHex(colors.surface) || (isDark ? '#130d0b' : '#fff8f6');
+    const surfaceLow = getHex(colors.surfaceContainerLow) || (isDark ? '#1a110f' : '#f8edea');
+    const surfaceMid = getHex(colors.surfaceContainer) || getHex(colors.surface) || (isDark ? '#221715' : '#f4e7e4');
+    const surfaceHigh = getHex(colors.surfaceContainerHigh) || (isDark ? '#291d1a' : '#efe0dc');
+    const surfaceHighest = getHex(colors.surfaceContainerHighest) || getHex(colors.surfaceVariant) || (isDark ? '#302220' : '#e8dad6');
+
+    const onSurface = getHex(colors.onSurface) || (isDark ? '#f9e0db' : '#1c1b1f');
+    const onSurfaceVar = getHex(colors.onSurfaceVariant) || (isDark ? '#bca6a2' : '#49454e');
+    const outline = getHex(colors.outlineVariant) || getHex(colors.outline) || (isDark ? '#554441' : '#c4c6d0');
+
+    const primary = getHex(colors.primary) || (isDark ? '#f9b7a9' : '#8c4e44');
+    const onPrimary = getHex(colors.onPrimary) || (isDark ? '#61342a' : '#ffffff');
+    const primContainer = getHex(colors.primaryContainer) || (isDark ? '#76453b' : '#ffdad4');
+    const onPrimContainer = getHex(colors.onPrimaryContainer) || (isDark ? '#ffdbd4' : '#3a0b06');
+
+    const secondary = getHex(colors.secondary) || (isDark ? '#e7bdb4' : '#775651');
+    const tertiary = getHex(colors.tertiary) || (isDark ? '#ffd9b0' : '#705b2e');
+
+    return `
+      /* --- Caelestia Universal Dynamic Theming (Extracted from Wallpaper) --- */
+      :root, html, body {
+        /* Standard CSS Variables: Tailwind, Radix, Shadcn UI */
+        --background: ${bg} !important;
+        --foreground: ${onSurface} !important;
+        --card: ${surfaceMid} !important;
+        --card-foreground: ${onSurface} !important;
+        --popover: ${surfaceMid} !important;
+        --popover-foreground: ${onSurface} !important;
+        --primary: ${primary} !important;
+        --primary-foreground: ${onPrimary} !important;
+        --secondary: ${surfaceHigh} !important;
+        --secondary-foreground: ${onSurface} !important;
+        --muted: ${surfaceLow} !important;
+        --muted-foreground: ${onSurfaceVar} !important;
+        --accent: ${primContainer} !important;
+        --accent-foreground: ${onPrimContainer} !important;
+        --border: ${outline} !important;
+        --input: ${outline} !important;
+        --ring: ${primary} !important;
+
+        /* Bootstrap & Modern Component Frameworks */
+        --bs-primary: ${primary} !important;
+        --bs-body-bg: ${bg} !important;
+        --bs-body-color: ${onSurface} !important;
+        --bs-secondary-color: ${onSurfaceVar} !important;
+        --bs-border-color: ${outline} !important;
+        --bs-card-bg: ${surfaceMid} !important;
+        --bs-tertiary-bg: ${surfaceLow} !important;
+
+        /* Browser Standard Accents */
+        accent-color: ${primary} !important;
+        caret-color: ${primary} !important;
+      }
+
+      /* Base Page Colors */
+      html, body {
+        background-color: ${bg} !important;
+        color: ${onSurface} !important;
+      }
+
+      /* Text Highlighting & Selection */
+      ::selection {
+        background-color: ${primContainer} !important;
+        color: ${onPrimContainer} !important;
+      }
+      ::-moz-selection {
+        background-color: ${primContainer} !important;
+        color: ${onPrimContainer} !important;
+      }
+
+      /* Scrollbars */
+      * {
+        scrollbar-color: ${outline} ${surfaceLow} !important;
+      }
+      ::-webkit-scrollbar {
+        width: 8px !important;
+        height: 8px !important;
+      }
+      ::-webkit-scrollbar-track {
+        background: ${surfaceLow} !important;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: ${outline} !important;
+        border-radius: 4px !important;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: ${primary} !important;
+      }
+
+      /* Links & Interactive Accents */
+      a {
+        color: ${primary} !important;
+      }
+      a:hover {
+        color: ${secondary} !important;
+      }
+      :focus-visible {
+        outline: 2px solid ${primary} !important;
+        outline-offset: 1px !important;
+      }
+
+      /* Surfaces: Navbars, Headers, Footers, Cards, Dialogs */
+      header, nav, [role="navigation"], .navbar, .header, .site-header, .top-nav {
+        background-color: ${surfaceMid} !important;
+        color: ${onSurface} !important;
+        border-color: ${outline} !important;
+      }
+      aside, [role="complementary"], .sidebar, .side-nav {
+        background-color: ${surfaceLow} !important;
+        color: ${onSurface} !important;
+        border-color: ${outline} !important;
+      }
+      footer, [role="contentinfo"], .footer, .site-footer {
+        background-color: ${surfaceLow} !important;
+        color: ${onSurfaceVar} !important;
+        border-color: ${outline} !important;
+      }
+      .card, .panel, .box, dialog, .modal-content, [class*="card-"], [class*="card_"] {
+        background-color: ${surfaceMid} !important;
+        border-color: ${outline} !important;
+        color: ${onSurface} !important;
+      }
+
+      /* Forms & Input Fields */
+      input:not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]),
+      textarea, select {
+        background-color: ${surfaceLow} !important;
+        color: ${onSurface} !important;
+        border: 1px solid ${outline} !important;
+      }
+      input:focus, textarea:focus, select:focus {
+        border-color: ${primary} !important;
+        outline: 1px solid ${primary} !important;
+      }
+
+      /* Standard Buttons */
+      button.btn-primary, button[type="submit"], input[type="submit"], .btn-primary {
+        background-color: ${primary} !important;
+        color: ${onPrimary} !important;
+        border-color: ${primary} !important;
+      }
+
+      /* Code & Preformatted Blocks */
+      pre, code, kbd, samp {
+        background-color: ${surfaceHighest} !important;
+        color: ${tertiary} !important;
+        border-color: ${outline} !important;
+      }
+
+      /* Dividers */
+      hr {
+        border-color: ${outline} !important;
+      }
+    `;
+  }
+
   function applyCaelestiaTheme(theme) {
     if (!theme || !theme.colours) return;
 
     const hostname = window.location.hostname.toLowerCase();
     const colors = theme.colours;
-    const isDark = theme.mode !== 'light';
 
-    // Synchronize GitHub's root attributes to match Caelestia's mode
-    if (hostname.includes('github.com')) {
-      const modeStr = isDark ? 'dark' : 'light';
-      document.documentElement.setAttribute('data-color-mode', modeStr);
-      document.documentElement.setAttribute('data-dark-theme', modeStr);
-      document.documentElement.setAttribute('data-light-theme', modeStr);
+    // Detect light vs dark mode from theme or system preference
+    let isDark = true;
+    if (theme.mode === 'light') {
+      isDark = false;
+    } else if (theme.mode === 'auto') {
+      isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    } else {
+      isDark = theme.mode !== 'light';
+    }
+
+    // Synchronize site root attributes for sites supporting theme modes
+    const modeStr = isDark ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-color-mode', modeStr);
+    document.documentElement.setAttribute('data-dark-theme', modeStr);
+    document.documentElement.setAttribute('data-light-theme', modeStr);
+    document.documentElement.setAttribute('data-theme', modeStr);
+    document.documentElement.setAttribute('data-bs-theme', modeStr);
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+    } else {
+      document.documentElement.classList.add('light');
+      document.documentElement.classList.remove('dark');
     }
 
     let css = '';
@@ -572,6 +745,8 @@
       css = buildRedditCSS(colors, isDark);
     } else if (hostname.includes('wikipedia.org')) {
       css = buildWikipediaCSS(colors, isDark);
+    } else {
+      css = buildUniversalCSS(colors, isDark);
     }
 
     if (!css) return;

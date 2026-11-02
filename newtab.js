@@ -333,8 +333,9 @@
   const searchInput = document.getElementById('searchInput');
 
   let isZenMode = localStorage.getItem('caelestia_zen') !== 'false';
+  let isZenFullscreenEnabled = localStorage.getItem('caelestia_zen_fullscreen') !== 'false';
 
-  function applyZenMode(enabled) {
+  async function applyZenMode(enabled, userTriggered = false) {
     isZenMode = enabled;
     localStorage.setItem('caelestia_zen', String(enabled));
     document.body.classList.toggle('zen-mode', enabled);
@@ -345,13 +346,36 @@
     if (!enabled && searchSection) {
       searchSection.classList.remove('search-active');
     }
+
+    // Toggle immersive fullscreen to hide address bar & tabs
+    if (userTriggered && isZenFullscreenEnabled) {
+      try {
+        if (enabled) {
+          if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+            await document.documentElement.requestFullscreen();
+          } else if (chrome?.runtime?.sendMessage) {
+            chrome.runtime.sendMessage({ action: 'setFullscreen', fullscreen: true });
+          }
+        } else {
+          if (document.fullscreenElement && document.exitFullscreen) {
+            await document.exitFullscreen();
+          } else if (chrome?.runtime?.sendMessage) {
+            chrome.runtime.sendMessage({ action: 'setFullscreen', fullscreen: false });
+          }
+        }
+      } catch (err) {
+        if (chrome?.runtime?.sendMessage) {
+          chrome.runtime.sendMessage({ action: 'setFullscreen', fullscreen: enabled });
+        }
+      }
+    }
   }
 
   if (btnZenToggle) {
-    btnZenToggle.addEventListener('click', () => applyZenMode(!isZenMode));
+    btnZenToggle.addEventListener('click', () => applyZenMode(!isZenMode, true));
   }
 
-  applyZenMode(isZenMode);
+  applyZenMode(isZenMode, false);
 
   // --- 6. Navigation Loading Feedback State ---
   const topProgressBar = document.getElementById('topProgressBar');
@@ -462,40 +486,72 @@
     });
   });
 
-  // --- 7b. Onboarding Modal Wizard (Chrome Web Store First-Time Flow) ---
+  // --- 7b. Enhanced Onboarding Modal Wizard (Interactive Experience) ---
   const onboardingModal = document.getElementById('onboardingModal');
   const dot1 = document.getElementById('dot1');
   const dot2 = document.getElementById('dot2');
   const dot3 = document.getElementById('dot3');
+  const dot4 = document.getElementById('dot4');
   const step1 = document.getElementById('onboardingStep1');
   const step2 = document.getElementById('onboardingStep2');
   const step3 = document.getElementById('onboardingStep3');
+  const step4 = document.getElementById('onboardingStep4');
   const btnNextStep1 = document.getElementById('btnNextStep1');
   const btnBackStep2 = document.getElementById('btnBackStep2');
   const btnNextStep2 = document.getElementById('btnNextStep2');
   const btnBackStep3 = document.getElementById('btnBackStep3');
+  const btnNextStep3 = document.getElementById('btnNextStep3');
+  const btnBackStep4 = document.getElementById('btnBackStep4');
   const btnFinishOnboarding = document.getElementById('btnFinishOnboarding');
+  const btnSkipOnboarding = document.getElementById('btnSkipOnboarding');
   const onboardingNameInput = document.getElementById('onboardingNameInput');
+  const onboardingGreetingPreview = document.getElementById('onboardingGreetingPreview');
+  const previewClock = document.getElementById('previewClock');
   const obZen = document.getElementById('obZen');
   const obDash = document.getElementById('obDash');
+  const obZenFullscreen = document.getElementById('obZenFullscreen');
 
   let currentStep = 1;
+
+  function updateGreetingPreview() {
+    if (!onboardingGreetingPreview) return;
+    const hour = new Date().getHours();
+    let salutation = 'Good morning';
+    if (hour >= 12 && hour < 17) salutation = 'Good afternoon';
+    else if (hour >= 17 || hour < 5) salutation = 'Good evening';
+
+    const rawName = (onboardingNameInput?.value || '').trim();
+    const displayName = rawName || 'Friend';
+    onboardingGreetingPreview.textContent = `${salutation}, ${displayName}`;
+
+    if (previewClock) {
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2, '0');
+      const m = String(now.getMinutes()).padStart(2, '0');
+      previewClock.textContent = `${h}:${m}`;
+    }
+  }
 
   function showStep(stepNum) {
     currentStep = stepNum;
     if (step1) step1.classList.toggle('active', stepNum === 1);
     if (step2) step2.classList.toggle('active', stepNum === 2);
     if (step3) step3.classList.toggle('active', stepNum === 3);
+    if (step4) step4.classList.toggle('active', stepNum === 4);
 
     if (dot1) dot1.classList.toggle('active', stepNum === 1);
     if (dot2) dot2.classList.toggle('active', stepNum === 2);
     if (dot3) dot3.classList.toggle('active', stepNum === 3);
+    if (dot4) dot4.classList.toggle('active', stepNum === 4);
 
-    if (stepNum === 2 && onboardingNameInput) {
-      setTimeout(() => {
-        onboardingNameInput.focus();
-        onboardingNameInput.select();
-      }, 50);
+    if (stepNum === 2) {
+      updateGreetingPreview();
+      if (onboardingNameInput) {
+        setTimeout(() => {
+          onboardingNameInput.focus();
+          onboardingNameInput.select();
+        }, 50);
+      }
     }
   }
 
@@ -510,6 +566,11 @@
       obZen.checked = isZen;
       obDash.checked = !isZen;
     }
+    const isFs = localStorage.getItem('caelestia_zen_fullscreen') !== 'false';
+    if (obZenFullscreen) {
+      obZenFullscreen.checked = isFs;
+    }
+    updateGreetingPreview();
     showStep(1);
     onboardingModal.classList.add('open');
   }
@@ -525,8 +586,11 @@
   if (btnBackStep2) btnBackStep2.addEventListener('click', () => showStep(1));
   if (btnNextStep2) btnNextStep2.addEventListener('click', () => showStep(3));
   if (btnBackStep3) btnBackStep3.addEventListener('click', () => showStep(2));
+  if (btnNextStep3) btnNextStep3.addEventListener('click', () => showStep(4));
+  if (btnBackStep4) btnBackStep4.addEventListener('click', () => showStep(3));
 
   if (onboardingNameInput) {
+    onboardingNameInput.addEventListener('input', updateGreetingPreview);
     onboardingNameInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
@@ -535,27 +599,36 @@
     });
   }
 
-  if (btnFinishOnboarding) {
-    btnFinishOnboarding.addEventListener('click', () => {
-      const enteredName = (onboardingNameInput?.value || '').trim();
-      if (enteredName) {
-        setUsername(enteredName);
-        if (chrome?.storage?.local) {
-          chrome.storage.local.set({ caelestia_username: enteredName });
-        }
-      }
-      if (obZen && obDash) {
-        const isZen = obZen.checked;
-        localStorage.setItem('caelestia_zen', String(isZen));
-        applyZenMode(isZen);
-      }
-      localStorage.setItem('caelestia_onboarded', 'true');
+  function completeOnboarding() {
+    const enteredName = (onboardingNameInput?.value || '').trim();
+    if (enteredName) {
+      setUsername(enteredName);
       if (chrome?.storage?.local) {
-        chrome.storage.local.set({ caelestia_onboarded: true });
+        chrome.storage.local.set({ caelestia_username: enteredName });
       }
-      closeOnboarding();
-    });
+    }
+    if (obZen && obDash) {
+      const isZen = obZen.checked;
+      localStorage.setItem('caelestia_zen', String(isZen));
+      applyZenMode(isZen, false);
+    }
+    if (obZenFullscreen) {
+      const isFs = obZenFullscreen.checked;
+      localStorage.setItem('caelestia_zen_fullscreen', String(isFs));
+      isZenFullscreenEnabled = isFs;
+      if (chrome?.storage?.local) {
+        chrome.storage.local.set({ caelestia_zen_fullscreen: isFs });
+      }
+    }
+    localStorage.setItem('caelestia_onboarded', 'true');
+    if (chrome?.storage?.local) {
+      chrome.storage.local.set({ caelestia_onboarded: true });
+    }
+    closeOnboarding();
   }
+
+  if (btnFinishOnboarding) btnFinishOnboarding.addEventListener('click', completeOnboarding);
+  if (btnSkipOnboarding) btnSkipOnboarding.addEventListener('click', completeOnboarding);
 
   function checkOnboarding() {
     const isFirstTime = !localStorage.getItem('caelestia_onboarded');
@@ -762,10 +835,10 @@
       return;
     }
 
-    // Z -> Toggle Zen Mode
+    // Z -> Toggle Zen Mode (Enters/exits fullscreen & hides address bar)
     if (key === 'z') {
       e.preventDefault();
-      applyZenMode(!isZenMode);
+      applyZenMode(!isZenMode, true);
       return;
     }
 

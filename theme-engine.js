@@ -291,15 +291,17 @@
         dominantHex = rgbToHex(avgR, avgG, avgB);
       }
 
-      return generateMaterialPalette(dominantHex);
+      const palette = generateMaterialPalette(dominantHex, true);
+      palette._dominantHex = dominantHex;
+      return palette;
     } catch (err) {
       console.warn('Canvas color extraction error, fallback to default:', err);
       return PRESETS['caelestia-violet'].colours;
     }
   }
 
-  // Generate full harmonious Material You style tokens from a single key hex color
-  function generateMaterialPalette(keyHex) {
+  // Generate full harmonious Material You style tokens from a single key hex color picked from wallpaper
+  function generateMaterialPalette(keyHex, isDark = true) {
     const rgb = hexToRgb(keyHex);
     const [h, s] = rgbToHsl(rgb.r, rgb.g, rgb.b);
 
@@ -307,35 +309,67 @@
     const secHue = (h + 30) % 360;
     const tertHue = (h + 60) % 360;
 
-    return {
-      primary: hslToRgb(h, sat, 0.78),
-      onPrimary: hslToRgb(h, sat, 0.18),
-      primaryContainer: hslToRgb(h, sat, 0.28),
-      onPrimaryContainer: hslToRgb(h, sat, 0.92),
+    if (isDark) {
+      return {
+        primary: hslToRgb(h, sat, 0.78),
+        onPrimary: hslToRgb(h, sat, 0.18),
+        primaryContainer: hslToRgb(h, sat, 0.28),
+        onPrimaryContainer: hslToRgb(h, sat, 0.92),
 
-      surface: hslToRgb(h, 0.12, 0.06),
-      onSurface: hslToRgb(h, 0.15, 0.92),
-      surfaceVariant: hslToRgb(h, 0.14, 0.16),
-      onSurfaceVariant: hslToRgb(h, 0.12, 0.74),
+        surface: hslToRgb(h, 0.12, 0.06),
+        onSurface: hslToRgb(h, 0.15, 0.92),
+        surfaceVariant: hslToRgb(h, 0.14, 0.16),
+        onSurfaceVariant: hslToRgb(h, 0.12, 0.74),
 
-      surfaceContainer: hslToRgb(h, 0.12, 0.10),
-      surfaceContainerHigh: hslToRgb(h, 0.12, 0.13),
-      surfaceContainerHighest: hslToRgb(h, 0.12, 0.16),
-      surfaceContainerLow: hslToRgb(h, 0.12, 0.08),
+        surfaceContainer: hslToRgb(h, 0.12, 0.10),
+        surfaceContainerHigh: hslToRgb(h, 0.12, 0.13),
+        surfaceContainerHighest: hslToRgb(h, 0.12, 0.16),
+        surfaceContainerLow: hslToRgb(h, 0.12, 0.08),
 
-      outline: hslToRgb(h, 0.15, 0.52),
-      outlineVariant: hslToRgb(h, 0.15, 0.28),
+        outline: hslToRgb(h, 0.15, 0.52),
+        outlineVariant: hslToRgb(h, 0.15, 0.28),
 
-      secondary: hslToRgb(secHue, sat * 0.7, 0.75),
-      onSecondary: hslToRgb(secHue, sat * 0.7, 0.18),
-      secondaryContainer: hslToRgb(secHue, sat * 0.7, 0.26),
-      onSecondaryContainer: hslToRgb(secHue, sat * 0.7, 0.90),
+        secondary: hslToRgb(secHue, sat * 0.7, 0.75),
+        onSecondary: hslToRgb(secHue, sat * 0.7, 0.18),
+        secondaryContainer: hslToRgb(secHue, sat * 0.7, 0.26),
+        onSecondaryContainer: hslToRgb(secHue, sat * 0.7, 0.90),
 
-      tertiary: hslToRgb(tertHue, sat * 0.8, 0.80),
-      onTertiary: hslToRgb(tertHue, sat * 0.8, 0.18),
-      tertiaryContainer: hslToRgb(tertHue, sat * 0.8, 0.28),
-      onTertiaryContainer: hslToRgb(tertHue, sat * 0.8, 0.92)
-    };
+        tertiary: hslToRgb(tertHue, sat * 0.8, 0.80),
+        onTertiary: hslToRgb(tertHue, sat * 0.8, 0.18),
+        tertiaryContainer: hslToRgb(tertHue, sat * 0.8, 0.28),
+        onTertiaryContainer: hslToRgb(tertHue, sat * 0.8, 0.92)
+      };
+    } else {
+      return {
+        primary: hslToRgb(h, sat, 0.40),
+        onPrimary: '#ffffff',
+        primaryContainer: hslToRgb(h, sat, 0.90),
+        onPrimaryContainer: hslToRgb(h, sat, 0.12),
+
+        surface: hslToRgb(h, 0.08, 0.98),
+        onSurface: hslToRgb(h, 0.10, 0.12),
+        surfaceVariant: hslToRgb(h, 0.10, 0.90),
+        onSurfaceVariant: hslToRgb(h, 0.10, 0.32),
+
+        surfaceContainer: hslToRgb(h, 0.08, 0.94),
+        surfaceContainerHigh: hslToRgb(h, 0.08, 0.92),
+        surfaceContainerHighest: hslToRgb(h, 0.08, 0.90),
+        surfaceContainerLow: hslToRgb(h, 0.08, 0.96),
+
+        outline: hslToRgb(h, 0.10, 0.50),
+        outlineVariant: hslToRgb(h, 0.10, 0.78),
+
+        secondary: hslToRgb(secHue, sat * 0.7, 0.42),
+        onSecondary: '#ffffff',
+        secondaryContainer: hslToRgb(secHue, sat * 0.7, 0.90),
+        onSecondaryContainer: hslToRgb(secHue, sat * 0.7, 0.14),
+
+        tertiary: hslToRgb(tertHue, sat * 0.8, 0.42),
+        onTertiary: '#ffffff',
+        tertiaryContainer: hslToRgb(tertHue, sat * 0.8, 0.92),
+        onTertiaryContainer: hslToRgb(tertHue, sat * 0.8, 0.14)
+      };
+    }
   }
 
   // Apply colors to document root

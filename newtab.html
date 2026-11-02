@@ -224,105 +224,190 @@
     </div>
   </div>
 
-  <!-- Onboarding Modal Wizard (Chrome Web Store First-Time Experience) -->
+  <!-- Onboarding Modal Wizard (Enhanced First-Time Experience) -->
   <div class="modal-overlay" id="onboardingModal">
     <div class="modal-card onboarding-card">
-      <!-- Steps Indicator -->
-      <div class="onboarding-steps-indicator">
-        <span class="step-dot active" id="dot1"></span>
-        <span class="step-dot" id="dot2"></span>
-        <span class="step-dot" id="dot3"></span>
+      <!-- Onboarding Top Bar with Brand & Skip -->
+      <div class="onboarding-top-bar">
+        <div class="onboarding-brand">
+          <span class="material-symbols-rounded brand-icon">auto_awesome</span>
+          <span class="brand-title">Caelestia</span>
+          <span class="brand-pill">v1.3</span>
+        </div>
+        <button type="button" class="onboarding-skip-btn" id="btnSkipOnboarding">Skip tour</button>
       </div>
 
-      <!-- Step 1: Welcome -->
-      <div class="onboarding-step active" id="onboardingStep1">
-        <div class="onboarding-icon-header">
-          <span class="material-symbols-rounded">auto_awesome</span>
+      <!-- Modern Steps Indicator -->
+      <div class="onboarding-steps-indicator">
+        <div class="step-pill active" id="dot1" data-step="1">
+          <span class="step-num">1</span>
+          <span class="step-label">Welcome</span>
         </div>
-        <h2>Welcome to Caelestia-DNT</h2>
-        <p class="onboarding-subtitle">A minimalist, keyboard-centric new tab designed with dynamic Material You aesthetics and seamless workflow.</p>
+        <div class="step-line"></div>
+        <div class="step-pill" id="dot2" data-step="2">
+          <span class="step-num">2</span>
+          <span class="step-label">Profile</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-pill" id="dot3" data-step="3">
+          <span class="step-num">3</span>
+          <span class="step-label">Focus</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-pill" id="dot4" data-step="4">
+          <span class="step-num">4</span>
+          <span class="step-label">Shortcuts</span>
+        </div>
+      </div>
+
+      <!-- Step 1: Welcome & Dynamic Wallpaper Magic -->
+      <div class="onboarding-step active" id="onboardingStep1">
+        <div class="onboarding-hero">
+          <div class="onboarding-hero-icon">
+            <span class="material-symbols-rounded">palette</span>
+          </div>
+          <h2>Your New Tab, Elevated</h2>
+          <p class="onboarding-subtitle">A lightning-fast, distraction-free space with dynamic Material You colors extracted directly from your wallpaper.</p>
+        </div>
+
         <div class="onboarding-highlights">
           <div class="highlight-item">
-            <span class="material-symbols-rounded">palette</span>
-            <div>
-              <strong>Dynamic Theming</strong>
-              <span>Harmonious colors extracted live from your wallpaper with dark & light modes.</span>
+            <div class="highlight-icon">
+              <span class="material-symbols-rounded">wallpaper</span>
+            </div>
+            <div class="highlight-text">
+              <strong>Wallpaper-Driven Colors</strong>
+              <span>Harmonious palettes extracted live from your wallpaper with light & dark mode.</span>
             </div>
           </div>
           <div class="highlight-item">
-            <span class="material-symbols-rounded">keyboard</span>
-            <div>
-              <strong>Keyboard-First Flow</strong>
-              <span>Search, navigate, and manage your browser with single-key shortcuts.</span>
+            <div class="highlight-icon">
+              <span class="material-symbols-rounded">language</span>
+            </div>
+            <div class="highlight-text">
+              <strong>Universal Site Theming</strong>
+              <span>Injects your dynamic palette into YouTube, GitHub, and all websites you visit.</span>
+            </div>
+          </div>
+          <div class="highlight-item">
+            <div class="highlight-icon">
+              <span class="material-symbols-rounded">filter_center_focus</span>
+            </div>
+            <div class="highlight-text">
+              <strong>Distraction-Free Zen Mode</strong>
+              <span>Press <kbd>Z</kbd> anytime to hide the address bar, tabs, and clutter for pure focus.</span>
             </div>
           </div>
         </div>
+
         <div class="onboarding-actions">
-          <button class="btn primary" id="btnNextStep1">Next <span class="material-symbols-rounded">arrow_forward</span></button>
+          <button class="btn primary" id="btnNextStep1">Next: Personalize <span class="material-symbols-rounded">arrow_forward</span></button>
         </div>
       </div>
 
-      <!-- Step 2: Personalize Name & View -->
+      <!-- Step 2: Personalize Name with Real-Time Greeting Preview -->
       <div class="onboarding-step" id="onboardingStep2">
-        <div class="onboarding-icon-header">
-          <span class="material-symbols-rounded">account_circle</span>
-        </div>
-        <h2>Personalize Your Space</h2>
-        <p class="onboarding-subtitle">What name would you like Caelestia-DNT to greet you with?</p>
-        
-        <div class="onboarding-field">
-          <label for="onboardingNameInput">Display Name</label>
-          <input type="text" id="onboardingNameInput" placeholder="e.g. FrontendGeek, Alex..." maxlength="28" autocomplete="name">
+        <div class="onboarding-hero">
+          <div class="onboarding-hero-icon">
+            <span class="material-symbols-rounded">badge</span>
+          </div>
+          <h2>What should we call you?</h2>
+          <p class="onboarding-subtitle">We'll personalize your greeting and daily motivation.</p>
         </div>
 
         <div class="onboarding-field">
-          <label>Default Startup View</label>
-          <div class="view-choice-group">
-            <label class="view-choice">
-              <input type="radio" name="onboardingView" value="zen" id="obZen" checked>
-              <div class="choice-card">
-                <span class="material-symbols-rounded">filter_center_focus</span>
-                <strong>Zen Mode</strong>
-                <span>Clean clock, greeting, and quotes</span>
-              </div>
-            </label>
-            <label class="view-choice">
-              <input type="radio" name="onboardingView" value="dashboard" id="obDash">
-              <div class="choice-card">
-                <span class="material-symbols-rounded">dashboard</span>
-                <strong>Full Dashboard</strong>
-                <span>Shortcuts, tasks, and scratchpad</span>
-              </div>
-            </label>
+          <label for="onboardingNameInput">Display Name</label>
+          <div class="input-with-icon">
+            <span class="material-symbols-rounded">person</span>
+            <input type="text" id="onboardingNameInput" placeholder="Enter your name..." maxlength="28" autocomplete="name">
           </div>
+        </div>
+
+        <!-- Live Greeting Preview -->
+        <div class="onboarding-preview-card">
+          <div class="preview-card-header">
+            <span class="material-symbols-rounded">visibility</span>
+            <span>Live Greeting Preview</span>
+          </div>
+          <div class="preview-clock-display" id="previewClock">12:00</div>
+          <div class="preview-greeting-display" id="onboardingGreetingPreview">Good afternoon, FrontendGeek</div>
         </div>
 
         <div class="onboarding-actions split">
           <button class="btn secondary" id="btnBackStep2">Back</button>
-          <button class="btn primary" id="btnNextStep2">Next <span class="material-symbols-rounded">arrow_forward</span></button>
+          <button class="btn primary" id="btnNextStep2">Next: View & Focus <span class="material-symbols-rounded">arrow_forward</span></button>
         </div>
       </div>
 
-      <!-- Step 3: Quick Shortcuts Tour -->
+      <!-- Step 3: Choose Startup View & Zen Fullscreen Option -->
       <div class="onboarding-step" id="onboardingStep3">
-        <div class="onboarding-icon-header">
-          <span class="material-symbols-rounded">speed</span>
+        <div class="onboarding-hero">
+          <div class="onboarding-hero-icon">
+            <span class="material-symbols-rounded">view_quilt</span>
+          </div>
+          <h2>Choose Your Experience</h2>
+          <p class="onboarding-subtitle">Select your default layout. You can switch anytime with <kbd>Z</kbd>.</p>
         </div>
-        <h2>Quick Shortcuts</h2>
-        <p class="onboarding-subtitle">Navigate everything without touching your mouse:</p>
 
-        <div class="onboarding-shortcuts-grid">
-          <div class="shortcut-tip"><kbd>S</kbd> <span>Quick Search</span></div>
-          <div class="shortcut-tip"><kbd>Z</kbd> <span>Toggle Zen View</span></div>
-          <div class="shortcut-tip"><kbd>P</kbd> <span>Browser Menu</span></div>
-          <div class="shortcut-tip"><kbd>,</kbd> <span>Extension Preferences</span></div>
-          <div class="shortcut-tip"><kbd>H</kbd> <span>History</span></div>
-          <div class="shortcut-tip"><kbd>Esc</kbd> <span>Dismiss / Return</span></div>
+        <div class="view-choice-group">
+          <label class="view-choice">
+            <input type="radio" name="onboardingView" value="zen" id="obZen" checked>
+            <div class="choice-card">
+              <span class="material-symbols-rounded">filter_center_focus</span>
+              <strong>Zen Mode</strong>
+              <span>Clean clock, personalized greeting & quotes</span>
+              <span class="choice-badge">Recommended</span>
+            </div>
+          </label>
+          <label class="view-choice">
+            <input type="radio" name="onboardingView" value="dashboard" id="obDash">
+            <div class="choice-card">
+              <span class="material-symbols-rounded">dashboard</span>
+              <strong>Full Dashboard</strong>
+              <span>Shortcuts, tasks, scratchpad & quick tools</span>
+            </div>
+          </label>
+        </div>
+
+        <div class="onboarding-feature-toggle">
+          <label class="toggle-control-label">
+            <input type="checkbox" id="obZenFullscreen" checked>
+            <span class="toggle-switch"></span>
+            <div class="toggle-text">
+              <strong>Hide Address Bar in Zen Mode</strong>
+              <span>Forces edge-to-edge fullscreen to conceal browser tabs and the omnibox when Zen mode is active.</span>
+            </div>
+          </label>
         </div>
 
         <div class="onboarding-actions split">
           <button class="btn secondary" id="btnBackStep3">Back</button>
-          <button class="btn primary finish-btn" id="btnFinishOnboarding">Launch Dashboard <span class="material-symbols-rounded">rocket_launch</span></button>
+          <button class="btn primary" id="btnNextStep3">Next: Shortcuts <span class="material-symbols-rounded">arrow_forward</span></button>
+        </div>
+      </div>
+
+      <!-- Step 4: Quick Shortcuts Tour -->
+      <div class="onboarding-step" id="onboardingStep4">
+        <div class="onboarding-hero">
+          <div class="onboarding-hero-icon">
+            <span class="material-symbols-rounded">bolt</span>
+          </div>
+          <h2>Keyboard Mastery</h2>
+          <p class="onboarding-subtitle">Control your entire browser with single-key shortcuts:</p>
+        </div>
+
+        <div class="onboarding-shortcuts-grid">
+          <div class="shortcut-tip"><kbd>Z</kbd> <span><strong>Zen Mode</strong> (Full screen / Hide address bar)</span></div>
+          <div class="shortcut-tip"><kbd>S</kbd> <span><strong>Instant Search</strong> (Any engine)</span></div>
+          <div class="shortcut-tip"><kbd>P</kbd> <span><strong>Browser Menu</strong> (Tabs, settings)</span></div>
+          <div class="shortcut-tip"><kbd>,</kbd> <span><strong>Preferences</strong> (Wallpaper & colors)</span></div>
+          <div class="shortcut-tip"><kbd>H</kbd> <span><strong>History</strong> jump</span></div>
+          <div class="shortcut-tip"><kbd>Esc</kbd> <span><strong>Dismiss</strong> any active view</span></div>
+        </div>
+
+        <div class="onboarding-actions split">
+          <button class="btn secondary" id="btnBackStep4">Back</button>
+          <button class="btn primary finish-btn" id="btnFinishOnboarding">Get Started <span class="material-symbols-rounded">rocket_launch</span></button>
         </div>
       </div>
     </div>

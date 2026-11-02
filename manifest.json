@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Caelestia Dynamic New Tab",
+  "name": "Caelestia-DNT",
   "version": "1.3.0",
-  "description": "Minimalist keyboard-first new tab with dynamic Material You colors, Zen mode, and Caelestia theming on YouTube, GitHub, Reddit & Wikipedia",
+  "description": "Dynamic Material You new tab strictly synchronized with Caelestia Shell and Hyprland Linux",
   "permissions": [
     "windows",
     "tabs",
@@ -32,7 +32,9 @@
         "*://*.reddit.com/*",
         "*://*.wikipedia.org/*"
       ],
-      "js": ["content.js"],
+      "js": [
+        "content.js"
+      ],
       "run_at": "document_start"
     }
   ],

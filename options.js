@@ -257,6 +257,12 @@
 
         if (chrome?.storage?.local) {
           chrome.storage.local.set({
+            caelestia_theme: {
+              name: 'wallpaper-extracted',
+              mode: 'dark',
+              colours: palette,
+              _dominantHex: palette._dominantHex
+            },
             caelestia_theme_source: 'wallpaper-upload',
             caelestia_custom_palette: palette,
             caelestia_custom_wallpaper_data: imgDataUrl

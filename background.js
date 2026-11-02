@@ -4,6 +4,10 @@
 // Broadcasts theme from caelestia-theme.json into chrome.storage.local
 async function syncThemeToStorage() {
   try {
+    const data = await chrome.storage.local.get(['caelestia_theme_source']);
+    if (data.caelestia_theme_source === 'wallpaper-upload') {
+      return;
+    }
     const url = chrome.runtime.getURL('caelestia-theme.json');
     const resp = await fetch(`${url}?t=${Date.now()}`);
     if (resp.ok) {
@@ -26,23 +30,30 @@ chrome.runtime.onInstalled.addListener((details) => {
 chrome.runtime.onStartup.addListener(syncThemeToStorage);
 setInterval(syncThemeToStorage, 3000);
 
-// Ensure window always stays in normal state (never edge-to-edge fullscreen)
-// This guarantees it respects Caelestia Shell's default single app size and tiling gaps
-function enforceNormalWindowState(win) {
-  if (win && win.state === 'fullscreen') {
-    chrome.windows.update(win.id, { state: 'normal' });
-  }
-}
-
-chrome.windows.onCreated.addListener(enforceNormalWindowState);
-chrome.runtime.onStartup.addListener(() => {
-  chrome.windows.getAll((windows) => {
-    windows.forEach(enforceNormalWindowState);
-  });
-});
-
-// Message listener for browser actions and navigation
+// Message listener for browser actions, navigation, and Zen fullscreen management
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  if (msg.action === 'setFullscreen') {
+    const targetWinId = sender.tab?.windowId;
+    const targetState = msg.fullscreen ? 'fullscreen' : 'normal';
+
+    if (targetWinId) {
+      chrome.windows.update(targetWinId, { state: targetState }, (win) => {
+        sendResponse({ status: 'ok', state: win?.state || targetState });
+      });
+    } else {
+      chrome.windows.getCurrent((win) => {
+        if (win) {
+          chrome.windows.update(win.id, { state: targetState }, (updatedWin) => {
+            sendResponse({ status: 'ok', state: updatedWin?.state || targetState });
+          });
+        } else {
+          sendResponse({ status: 'error', message: 'No window found' });
+        }
+      });
+    }
+    return true; // Keep asynchronous response channel open
+  }
+
   if (msg.action === 'openSettings') {
     chrome.tabs.create({ url: 'chrome://settings' }, () => {
       sendResponse({ status: 'settings_opened' });
