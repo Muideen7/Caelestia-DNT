@@ -25,53 +25,35 @@
   let lastThemeJsonStr = '';
 
   async function loadCaelestiaTheme() {
-    const themeSource = localStorage.getItem('caelestia_theme_source') || 'caelestia-dynamic';
-
-    // 1. Preset Scheme Mode
-    if (themeSource === 'preset') {
-      const presetKey = localStorage.getItem('caelestia_theme_preset') || 'caelestia-violet';
-      const preset = engine?.PRESETS?.[presetKey];
-      if (preset) {
-        const root = document.documentElement;
-        root.setAttribute('data-theme', preset.mode || 'dark');
-        if (themeModeEl) themeModeEl.textContent = 'Preset';
-        if (themeNameEl) themeNameEl.textContent = preset.name;
-        if (engine?.applyPaletteToRoot) {
-          engine.applyPaletteToRoot(preset.colours, root);
-        }
-      }
-      return;
-    }
-
-    // 2. Custom Wallpaper Color Extractor Mode
+    // 1. Check custom user palette from Options
+    const themeSource = localStorage.getItem('caelestia_theme_source');
     if (themeSource === 'wallpaper-upload') {
-      const savedPaletteStr = localStorage.getItem('caelestia_custom_palette');
-      if (savedPaletteStr) {
+      const customPaletteRaw = localStorage.getItem('caelestia_custom_palette');
+      if (customPaletteRaw) {
         try {
-          const palette = JSON.parse(savedPaletteStr);
-          const root = document.documentElement;
-          root.setAttribute('data-theme', 'dark');
-          if (themeModeEl) themeModeEl.textContent = 'Custom';
-          if (themeNameEl) themeNameEl.textContent = 'Wallpaper Extracted';
-          if (engine?.applyPaletteToRoot) {
-            engine.applyPaletteToRoot(palette, root);
+          const colors = JSON.parse(customPaletteRaw);
+          const isDark = (localStorage.getItem('caelestia_theme_mode') || 'dark') === 'dark';
+          const tokens = window.CaelestiaThemeEngine?.resolveThemeTokens ? 
+            window.CaelestiaThemeEngine.resolveThemeTokens(colors, isDark) : null;
+          if (tokens) {
+            window.CaelestiaThemeEngine.applyThemeTokens(tokens, isDark);
+            return;
           }
-          return;
         } catch (e) {
           console.debug('Failed to parse custom palette:', e);
         }
       }
     }
 
-    // 3. Caelestia Dynamic Mode (Linux / Caelestia Shell JSON sync)
-    // Tries zero-dependency localhost bridge first (works on Chrome Web Store & any OS install path)
+    // 2. Caelestia Dynamic Mode (Linux / Caelestia Shell JSON sync)
     let theme = null;
     let fromBridge = false;
 
+    // Optional lightweight check for Caelestia local bridge (only if active)
     try {
       const bridgeResp = await fetch('http://127.0.0.1:39123/theme', {
         cache: 'no-store',
-        signal: AbortSignal.timeout(600)
+        signal: AbortSignal.timeout(400)
       });
       if (bridgeResp.ok) {
         theme = await bridgeResp.json();
@@ -79,15 +61,15 @@
       }
     } catch (_) {}
 
+    // Fall back to bundled caelestia-theme.json (synchronized by kde-scheme.py)
     if (!theme) {
       try {
         const resp = await fetch(`./caelestia-theme.json?t=${Date.now()}`);
         if (resp.ok) {
-          const text = await resp.text();
-          theme = JSON.parse(text);
+          theme = await resp.json();
         }
       } catch (err) {
-        console.debug('Theme fetch error (using fallback defaults):', err);
+        console.debug('Local theme fetch error (using fallback defaults):', err);
       }
     }
 
@@ -96,8 +78,9 @@
     const themeStr = JSON.stringify(theme);
     if (themeStr === lastThemeJsonStr) return;
     lastThemeJsonStr = themeStr;
-      const root = document.documentElement;
 
+    try {
+      const root = document.documentElement;
       const mode = theme.mode || 'dark';
       root.setAttribute('data-theme', mode);
       if (themeModeEl) {
@@ -131,13 +114,19 @@
           wpEl.style.backgroundImage = `url("${theme.wallpaper_url}?t=${Date.now()}")`;
         }
       }
-    } catch (err) {
-      console.debug('Theme fetch error (using fallback defaults):', err);
+    } catch (e) {
+      console.debug('Error applying theme tokens:', e);
     }
   }
 
+  // Load theme immediately on tab creation
   loadCaelestiaTheme();
-  setInterval(loadCaelestiaTheme, 3000);
+
+  // Refresh theme only when user switches back to this tab (0% CPU / zero battery drain when idle)
+  window.addEventListener('focus', () => {
+    loadCaelestiaTheme();
+    updateClock();
+  });
 
   // --- 2. Live Digital Clock, Greeting, and Daily Quote ---
   const clockTimeEl = document.getElementById('clockTime');
@@ -651,9 +640,10 @@
         chrome.storage.local.set({ caelestia_zen_fullscreen: isFs });
       }
     }
+    localStorage.setItem('caelestia_onboarded_v2', 'true');
     localStorage.setItem('caelestia_onboarded', 'true');
     if (chrome?.storage?.local) {
-      chrome.storage.local.set({ caelestia_onboarded: true });
+      chrome.storage.local.set({ caelestia_onboarded_v2: true, caelestia_onboarded: true });
     }
     closeOnboarding();
   }
@@ -662,7 +652,7 @@
   if (btnSkipOnboarding) btnSkipOnboarding.addEventListener('click', completeOnboarding);
 
   function checkOnboarding() {
-    const isFirstTime = !localStorage.getItem('caelestia_onboarded');
+    const isFirstTime = !localStorage.getItem('caelestia_onboarded_v2');
     const isHashTrigger = window.location.hash === '#onboarding';
     if (isFirstTime || isHashTrigger) {
       if (isHashTrigger && window.history?.replaceState) {
