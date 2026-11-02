@@ -11,20 +11,65 @@
     return val.startsWith('#') ? val : `#${val}`;
   }
 
+  // Purely dynamic token resolution - all colors derived directly from wallpaper scheme
+  function resolveThemeTokens(colors, isDark) {
+    const primary = getHex(colors.primary) || (isDark ? '#d0bcff' : '#6750a4');
+    const onPrimary = getHex(colors.onPrimary) || (isDark ? '#381e72' : '#ffffff');
+    const primContainer = getHex(colors.primaryContainer) || primary;
+    const onPrimContainer = getHex(colors.onPrimaryContainer) || onPrimary;
+
+    const bg = getHex(colors.background) || getHex(colors.surface) || (isDark ? '#141218' : '#fef7ff');
+    const surface = getHex(colors.surface) || bg;
+    const surfaceLow = getHex(colors.surfaceContainerLow) || surface;
+    const surfaceMid = getHex(colors.surfaceContainer) || getHex(colors.surfaceVariant) || surface;
+    const surfaceHigh = getHex(colors.surfaceContainerHigh) || surfaceMid;
+    const surfaceHighest = getHex(colors.surfaceContainerHighest) || surfaceMid;
+
+    const onSurface = getHex(colors.onSurface) || (isDark ? '#e6e0e9' : '#1d1b20');
+    const onSurfaceVar = getHex(colors.onSurfaceVariant) || (isDark ? '#cac4d0' : '#49454f');
+    const outline = getHex(colors.outlineVariant) || getHex(colors.outline) || onSurfaceVar;
+
+    const secondary = getHex(colors.secondary) || primary;
+    const onSecondary = getHex(colors.onSecondary) || onPrimary;
+    const secContainer = getHex(colors.secondaryContainer) || surfaceMid;
+    const onSecContainer = getHex(colors.onSecondaryContainer) || onSurface;
+
+    const tertiary = getHex(colors.tertiary) || secondary;
+    const onTertiary = getHex(colors.onTertiary) || onPrimary;
+    const tertContainer = getHex(colors.tertiaryContainer) || surfaceMid;
+    const onTertContainer = getHex(colors.onTertiaryContainer) || onSurface;
+
+    // Dynamic semantic accents derived from active wallpaper palette
+    const green = getHex(colors.green) || getHex(colors.success) || primary;
+    const yellow = getHex(colors.yellow) || getHex(colors.peach) || secondary;
+    const error = getHex(colors.error) || getHex(colors.red) || outline;
+    const mauve = getHex(colors.mauve) || tertiary;
+    const blue = getHex(colors.blue) || primary;
+
+    return {
+      bg, surface, surfaceLow, surfaceMid, surfaceHigh, surfaceHighest,
+      onSurface, onSurfaceVar, outline,
+      primary, onPrimary, primContainer, onPrimContainer,
+      secondary, onSecondary, secContainer, onSecContainer,
+      tertiary, onTertiary, tertContainer, onTertContainer,
+      green, yellow, error, mauve, blue
+    };
+  }
+
   function buildYouTubeCSS(colors, isDark) {
-    const bg = getHex(colors.background) || (isDark ? '#130d0b' : '#fff8f6');
-    const surfaceLow = getHex(colors.surfaceContainerLow) || (isDark ? '#1a110f' : '#faedea');
-    const surfaceMid = getHex(colors.surfaceContainer) || (isDark ? '#221715' : '#f5e7e4');
-    const surfaceHigh = getHex(colors.surfaceContainerHigh) || (isDark ? '#291d1a' : '#efe1de');
-    const surfaceHighest = getHex(colors.surfaceContainerHighest) || (isDark ? '#302220' : '#e9dbd8');
-    
-    const onSurface = isDark ? (getHex(colors.onSurface) || '#f9e0db') : '#1c1b1f';
-    const onSurfaceVar = isDark ? (getHex(colors.onSurfaceVariant) || '#bca6a2') : '#444140';
-    const outline = getHex(colors.outlineVariant) || (isDark ? '#554441' : '#d2c2bf');
-    const primary = getHex(colors.primary) || (isDark ? '#f9b7a9' : '#8c4e44');
-    const onPrimary = isDark ? (getHex(colors.onPrimary) || '#61342a') : '#ffffff';
-    const primContainer = getHex(colors.primaryContainer) || (isDark ? '#76453b' : '#ffdad4');
-    const onPrimContainer = isDark ? (getHex(colors.onPrimaryContainer) || '#ffdbd4') : '#3a0b06';
+    const t = resolveThemeTokens(colors, isDark);
+    const bg = t.bg;
+    const surfaceLow = t.surfaceLow;
+    const surfaceMid = t.surfaceMid;
+    const surfaceHigh = t.surfaceHigh;
+    const surfaceHighest = t.surfaceHighest;
+    const onSurface = t.onSurface;
+    const onSurfaceVar = t.onSurfaceVar;
+    const outline = t.outline;
+    const primary = t.primary;
+    const onPrimary = t.onPrimary;
+    const primContainer = t.primContainer;
+    const onPrimContainer = t.onPrimContainer;
 
     return `
       /* --- YouTube Caelestia Dynamic Styling --- */
@@ -154,25 +199,24 @@
   }
 
   function buildGitHubCSS(colors, isDark) {
-    const bg = getHex(colors.background) || (isDark ? '#130d0b' : '#fff8f6');
-    const surfaceLow = getHex(colors.surfaceContainerLow) || (isDark ? '#1a110f' : '#faedea');
-    const surfaceMid = getHex(colors.surfaceContainer) || (isDark ? '#221715' : '#f5e7e4');
-    const surfaceHigh = getHex(colors.surfaceContainerHigh) || (isDark ? '#291d1a' : '#efe1de');
-    
-    // High-contrast text & base tokens
-    const onSurface = isDark ? (getHex(colors.onSurface) || '#f9e0db') : '#0f0e11';
-    const onSurfaceVar = isDark ? (getHex(colors.onSurfaceVariant) || '#d6c4c0') : '#363432';
-    const outline = getHex(colors.outlineVariant) || (isDark ? '#554441' : '#d2c2bf');
-    const primary = getHex(colors.primary) || (isDark ? '#f9b7a9' : '#8c4e44');
-    const onPrimary = isDark ? (getHex(colors.onPrimary) || '#61342a') : '#ffffff';
+    const t = resolveThemeTokens(colors, isDark);
+    const bg = t.bg;
+    const surfaceLow = t.surfaceLow;
+    const surfaceMid = t.surfaceMid;
+    const surfaceHigh = t.surfaceHigh;
+    const onSurface = t.onSurface;
+    const onSurfaceVar = t.onSurfaceVar;
+    const outline = t.outline;
+    const primary = t.primary;
+    const onPrimary = t.onPrimary;
 
-    // Dedicated high-contrast semantic icon colors for light & dark modes
-    const folderColor = isDark ? '#ffd488' : '#b25e00';
-    const starColor = isDark ? '#ffd54f' : '#b7791f';
-    const branchColor = isDark ? (getHex(colors.primary) || '#f9b7a9') : '#8c4e44';
-    const openColor = isDark ? '#56d364' : '#1a7f37';
-    const mergedColor = isDark ? '#d2a8ff' : '#8250df';
-    const closedColor = isDark ? '#ff7b72' : '#cf222e';
+    // Fully dynamic semantic colors derived directly from wallpaper palette
+    const folderColor = t.yellow;
+    const starColor = t.yellow;
+    const branchColor = t.primary;
+    const openColor = t.green;
+    const mergedColor = t.mauve;
+    const closedColor = t.error;
 
     return `
       /* --- GitHub Primer & Modern Tokens Overrides --- */
@@ -476,13 +520,14 @@
   }
 
   function buildRedditCSS(colors, isDark) {
-    const bg = getHex(colors.background) || (isDark ? '#130d0b' : '#fff8f6');
-    const surfaceLow = getHex(colors.surfaceContainerLow) || (isDark ? '#1a110f' : '#faedea');
-    const surfaceMid = getHex(colors.surfaceContainer) || (isDark ? '#221715' : '#f5e7e4');
-    const onSurface = isDark ? (getHex(colors.onSurface) || '#f9e0db') : '#1c1b1f';
-    const onSurfaceVar = isDark ? (getHex(colors.onSurfaceVariant) || '#bca6a2') : '#444140';
-    const outline = getHex(colors.outlineVariant) || (isDark ? '#554441' : '#d2c2bf');
-    const primary = getHex(colors.primary) || (isDark ? '#f9b7a9' : '#8c4e44');
+    const t = resolveThemeTokens(colors, isDark);
+    const bg = t.bg;
+    const surfaceLow = t.surfaceLow;
+    const surfaceMid = t.surfaceMid;
+    const onSurface = t.onSurface;
+    const onSurfaceVar = t.onSurfaceVar;
+    const outline = t.outline;
+    const primary = t.primary;
 
     return `
       /* --- Reddit Caelestia Dynamic Styling --- */
@@ -517,12 +562,13 @@
   }
 
   function buildWikipediaCSS(colors, isDark) {
-    const bg = getHex(colors.background) || (isDark ? '#130d0b' : '#fff8f6');
-    const surfaceLow = getHex(colors.surfaceContainerLow) || (isDark ? '#1a110f' : '#faedea');
-    const onSurface = isDark ? (getHex(colors.onSurface) || '#f9e0db') : '#1c1b1f';
-    const onSurfaceVar = isDark ? (getHex(colors.onSurfaceVariant) || '#bca6a2') : '#444140';
-    const outline = getHex(colors.outlineVariant) || (isDark ? '#554441' : '#d2c2bf');
-    const primary = getHex(colors.primary) || (isDark ? '#f9b7a9' : '#8c4e44');
+    const t = resolveThemeTokens(colors, isDark);
+    const bg = t.bg;
+    const surfaceLow = t.surfaceLow;
+    const onSurface = t.onSurface;
+    const onSurfaceVar = t.onSurfaceVar;
+    const outline = t.outline;
+    const primary = t.primary;
 
     return `
       /* --- Wikipedia Caelestia Dynamic Styling --- */

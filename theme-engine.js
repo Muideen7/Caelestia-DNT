@@ -337,7 +337,17 @@
         tertiary: hslToRgb(tertHue, sat * 0.8, 0.80),
         onTertiary: hslToRgb(tertHue, sat * 0.8, 0.18),
         tertiaryContainer: hslToRgb(tertHue, sat * 0.8, 0.28),
-        onTertiaryContainer: hslToRgb(tertHue, sat * 0.8, 0.92)
+        onTertiaryContainer: hslToRgb(tertHue, sat * 0.8, 0.92),
+
+        // Harmonious semantic colors derived dynamically from wallpaper hue
+        green: hslToRgb(142, sat * 0.75, 0.75),
+        success: hslToRgb(142, sat * 0.75, 0.75),
+        yellow: hslToRgb(45, sat * 0.85, 0.80),
+        peach: hslToRgb(30, sat * 0.85, 0.80),
+        error: hslToRgb(8, sat * 0.85, 0.75),
+        red: hslToRgb(8, sat * 0.85, 0.75),
+        mauve: hslToRgb(285, sat * 0.70, 0.80),
+        blue: hslToRgb(215, sat * 0.80, 0.78)
       };
     } else {
       return {
@@ -367,7 +377,17 @@
         tertiary: hslToRgb(tertHue, sat * 0.8, 0.42),
         onTertiary: '#ffffff',
         tertiaryContainer: hslToRgb(tertHue, sat * 0.8, 0.92),
-        onTertiaryContainer: hslToRgb(tertHue, sat * 0.8, 0.14)
+        onTertiaryContainer: hslToRgb(tertHue, sat * 0.8, 0.14),
+
+        // Harmonious semantic colors derived dynamically from wallpaper hue (Light mode)
+        green: hslToRgb(142, sat * 0.75, 0.35),
+        success: hslToRgb(142, sat * 0.75, 0.35),
+        yellow: hslToRgb(45, sat * 0.85, 0.40),
+        peach: hslToRgb(30, sat * 0.85, 0.45),
+        error: hslToRgb(8, sat * 0.85, 0.45),
+        red: hslToRgb(8, sat * 0.85, 0.45),
+        mauve: hslToRgb(285, sat * 0.70, 0.45),
+        blue: hslToRgb(215, sat * 0.80, 0.40)
       };
     }
   }
