@@ -33,11 +33,22 @@
       }
     }
 
-    // Default: Caelestia Dynamic from local JSON (Linux / Caelestia Shell)
+    // Default: Caelestia Dynamic from local JSON or desktop bridge
+    let theme = null;
     try {
-      const resp = await fetch(`./caelestia-theme.json?t=${Date.now()}`);
-      if (!resp.ok) return;
-      const theme = await resp.json();
+      const bridgeResp = await fetch('http://127.0.0.1:39123/theme', { signal: AbortSignal.timeout(600) });
+      if (bridgeResp.ok) theme = await bridgeResp.json();
+    } catch (_) {}
+
+    if (!theme) {
+      try {
+        const resp = await fetch(`./caelestia-theme.json?t=${Date.now()}`);
+        if (resp.ok) theme = await resp.json();
+      } catch (_) {}
+    }
+
+    try {
+      if (!theme) return;
       const root = document.documentElement;
 
       const mode = theme.mode || 'dark';

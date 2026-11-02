@@ -64,14 +64,38 @@
     }
 
     // 3. Caelestia Dynamic Mode (Linux / Caelestia Shell JSON sync)
-    try {
-      const resp = await fetch(`./caelestia-theme.json?t=${Date.now()}`);
-      if (!resp.ok) return;
-      const text = await resp.text();
-      if (text === lastThemeJsonStr) return;
-      lastThemeJsonStr = text;
+    // Tries zero-dependency localhost bridge first (works on Chrome Web Store & any OS install path)
+    let theme = null;
+    let fromBridge = false;
 
-      const theme = JSON.parse(text);
+    try {
+      const bridgeResp = await fetch('http://127.0.0.1:39123/theme', {
+        cache: 'no-store',
+        signal: AbortSignal.timeout(600)
+      });
+      if (bridgeResp.ok) {
+        theme = await bridgeResp.json();
+        fromBridge = true;
+      }
+    } catch (_) {}
+
+    if (!theme) {
+      try {
+        const resp = await fetch(`./caelestia-theme.json?t=${Date.now()}`);
+        if (resp.ok) {
+          const text = await resp.text();
+          theme = JSON.parse(text);
+        }
+      } catch (err) {
+        console.debug('Theme fetch error (using fallback defaults):', err);
+      }
+    }
+
+    if (!theme) return;
+
+    const themeStr = JSON.stringify(theme);
+    if (themeStr === lastThemeJsonStr) return;
+    lastThemeJsonStr = themeStr;
       const root = document.documentElement;
 
       const mode = theme.mode || 'dark';
@@ -98,6 +122,13 @@
           const hex = rawVal.startsWith('#') ? rawVal : `#${rawVal}`;
           const varName = `--md-sys-color-${camelToKebab(key)}`;
           root.style.setProperty(varName, hex);
+        }
+      }
+
+      if (fromBridge && theme.wallpaper_url) {
+        const wpEl = document.getElementById('wallpaperBg');
+        if (wpEl) {
+          wpEl.style.backgroundImage = `url("${theme.wallpaper_url}?t=${Date.now()}")`;
         }
       }
     } catch (err) {
