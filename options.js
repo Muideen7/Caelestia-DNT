@@ -1,4 +1,4 @@
-// Options & Preferences Logic for Caelestia Dynamic New Tab
+// Options & Preferences Logic for Caelestia-DNT
 
 (() => {
   'use strict';
@@ -14,6 +14,7 @@
       const preset = engine?.PRESETS?.[presetKey];
       if (preset) {
         document.documentElement.setAttribute('data-theme', preset.mode || 'dark');
+        document.documentElement.setAttribute('data-transparency', 'true');
         engine.applyPaletteToRoot(preset.colours);
       }
       return;
@@ -25,6 +26,7 @@
         try {
           const palette = JSON.parse(savedPaletteStr);
           document.documentElement.setAttribute('data-theme', 'dark');
+          document.documentElement.setAttribute('data-transparency', 'true');
           engine.applyPaletteToRoot(palette);
           return;
         } catch (e) {
@@ -33,7 +35,8 @@
       }
     }
 
-    // Default: Caelestia Dynamic from local JSON or desktop bridge
+    // Default: desktop dynamic from the generated Noctalia snapshot or the
+    // legacy Caelestia scheme file.
     let theme = null;
     try {
       const bridgeResp = await fetch('http://127.0.0.1:39123/theme', { signal: AbortSignal.timeout(600) });
@@ -41,10 +44,15 @@
     } catch (_) {}
 
     if (!theme) {
-      try {
-        const resp = await fetch(`./caelestia-theme.json?t=${Date.now()}`);
-        if (resp.ok) theme = await resp.json();
-      } catch (_) {}
+      for (const file of ['noctalia-theme.json', 'caelestia-theme.json']) {
+        try {
+          const resp = await fetch(`./${file}?t=${Date.now()}`, { cache: 'no-store' });
+          if (resp.ok) {
+            theme = await resp.json();
+            break;
+          }
+        } catch (_) {}
+      }
     }
 
     try {
@@ -53,6 +61,7 @@
 
       const mode = theme.mode || 'dark';
       root.setAttribute('data-theme', mode);
+      root.setAttribute('data-transparency', theme.transparency === false ? 'false' : 'true');
 
       if (theme.colours) {
         for (const [key, rawVal] of Object.entries(theme.colours)) {
@@ -171,12 +180,32 @@
       const newSource = radio.value;
       localStorage.setItem('caelestia_theme_source', newSource);
       if (chrome?.storage?.local) {
-        chrome.storage.local.set({ caelestia_theme_source: newSource });
+        const payload = { caelestia_theme_source: newSource };
+
+        if (newSource === 'preset') {
+          const presetKey = localStorage.getItem('caelestia_theme_preset') || 'caelestia-violet';
+          const preset = engine?.PRESETS?.[presetKey];
+          if (preset) {
+            payload.caelestia_theme = {
+              name: preset.name,
+              desktop: 'preset',
+              mode: preset.mode || 'dark',
+              transparency: true,
+              colours: preset.colours
+            };
+          }
+        }
+
+        chrome.storage.local.set(payload, () => {
+          if (newSource === 'caelestia-dynamic' && chrome.runtime?.sendMessage) {
+            chrome.runtime.sendMessage({ action: 'refreshTheme' }, () => void chrome.runtime.lastError);
+          }
+        });
       }
       updateThemeSourceUI(newSource);
       loadTheme();
 
-      let msg = 'Switched to Caelestia Dynamic sync';
+      let msg = 'Switched to desktop dynamic sync';
       if (newSource === 'wallpaper-upload') msg = 'Wallpaper Color Extractor active';
       if (newSource === 'preset') msg = 'Designer Presets active';
       showToast(msg);
@@ -192,18 +221,28 @@
 
       localStorage.setItem('caelestia_theme_source', 'preset');
       localStorage.setItem('caelestia_theme_preset', presetKey);
+      const preset = engine?.PRESETS?.[presetKey];
       if (chrome?.storage?.local) {
-        chrome.storage.local.set({
+        const payload = {
           caelestia_theme_source: 'preset',
           caelestia_theme_preset: presetKey
-        });
+        };
+        if (preset) {
+          payload.caelestia_theme = {
+            name: preset.name,
+            desktop: 'preset',
+            mode: preset.mode || 'dark',
+            transparency: true,
+            colours: preset.colours
+          };
+        }
+        chrome.storage.local.set(payload);
       }
 
       const presetRadio = document.getElementById('themeSourcePreset');
       if (presetRadio) presetRadio.checked = true;
       updateThemeSourceUI('preset');
 
-      const preset = engine?.PRESETS?.[presetKey];
       if (preset) {
         document.documentElement.setAttribute('data-theme', preset.mode || 'dark');
         engine.applyPaletteToRoot(preset.colours);
@@ -241,6 +280,20 @@
     }
   }
 
+  // Downscale the uploaded wallpaper before storing it. Keeping a full-size
+  // data URL in localStorage/chrome.storage easily blows past the quota.
+  function makeWallpaperPreview(img, maxDimension = 1600) {
+    const naturalWidth = img.naturalWidth || img.width || maxDimension;
+    const naturalHeight = img.naturalHeight || img.height || maxDimension;
+    const scale = Math.min(1, maxDimension / Math.max(naturalWidth, naturalHeight));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(naturalWidth * scale));
+    canvas.height = Math.max(1, Math.round(naturalHeight * scale));
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL('image/jpeg', 0.85);
+  }
+
   // Process selected wallpaper image
   function processWallpaperFile(file) {
     if (!file || !file.type.startsWith('image/')) {
@@ -250,41 +303,53 @@
 
     const reader = new FileReader();
     reader.onload = (e) => {
-      const imgDataUrl = e.target.result;
+      const sourceDataUrl = e.target.result;
       const img = new Image();
       img.onload = () => {
         // Extract palette
         const palette = engine.extractPaletteFromImage(img);
+        let previewDataUrl = sourceDataUrl;
+        try {
+          previewDataUrl = makeWallpaperPreview(img);
+        } catch (err) {
+          console.warn('Could not build wallpaper preview, using source image:', err);
+        }
 
         // Save palette & thumbnail
         localStorage.setItem('caelestia_theme_source', 'wallpaper-upload');
+        localStorage.setItem('caelestia_theme_mode', 'dark');
         localStorage.setItem('caelestia_custom_palette', JSON.stringify(palette));
         try {
-          // Store thumbnail data URL
-          localStorage.setItem('caelestia_custom_wallpaper_data', imgDataUrl);
+          localStorage.setItem('caelestia_custom_wallpaper_data', previewDataUrl);
+          localStorage.setItem('caelestia_custom_wallpaper_name', file.name);
         } catch (storageErr) {
-          console.warn('Image too large for full storage, palette saved:', storageErr);
+          console.warn('Image too large for local storage, palette saved:', storageErr);
         }
 
         if (chrome?.storage?.local) {
           chrome.storage.local.set({
             caelestia_theme: {
               name: 'wallpaper-extracted',
+              desktop: 'wallpaper-upload',
               mode: 'dark',
+              transparency: true,
               colours: palette,
               _dominantHex: palette._dominantHex
             },
             caelestia_theme_source: 'wallpaper-upload',
             caelestia_custom_palette: palette,
-            caelestia_custom_wallpaper_data: imgDataUrl
-          });
+            caelestia_custom_wallpaper_data: previewDataUrl,
+            caelestia_custom_wallpaper_name: file.name
+          }, () => void chrome.runtime.lastError);
         }
 
         // Apply immediately
+        document.documentElement.setAttribute('data-theme', 'dark');
+        document.documentElement.setAttribute('data-transparency', 'true');
         engine.applyPaletteToRoot(palette);
 
         // Update preview UI
-        if (wallpaperThumb) wallpaperThumb.src = imgDataUrl;
+        if (wallpaperThumb) wallpaperThumb.src = previewDataUrl;
         if (wallpaperFilename) wallpaperFilename.textContent = file.name;
         if (wallpaperPreviewBar) wallpaperPreviewBar.style.display = 'flex';
         renderSwatches(palette);
@@ -295,7 +360,7 @@
 
         showToast('Wallpaper colors extracted & applied!');
       };
-      img.src = imgDataUrl;
+      img.src = sourceDataUrl;
     };
     reader.readAsDataURL(file);
   }
@@ -332,22 +397,44 @@
     });
   }
 
-  // Reset custom wallpaper
+  // Reset custom wallpaper / preset and return to the desktop-dynamic source.
   if (btnResetWallpaper) {
     btnResetWallpaper.addEventListener('click', () => {
-      localStorage.removeItem('caelestia_custom_palette');
-      localStorage.removeItem('caelestia_custom_wallpaper_data');
+      [
+        'caelestia_custom_palette',
+        'caelestia_custom_wallpaper_data',
+        'caelestia_custom_wallpaper_name',
+        'caelestia_theme_preset',
+        'caelestia_theme_mode'
+      ].forEach((key) => localStorage.removeItem(key));
+      localStorage.setItem('caelestia_theme_source', 'caelestia-dynamic');
+
       if (wallpaperPreviewBar) wallpaperPreviewBar.style.display = 'none';
       if (extractedSwatches) extractedSwatches.innerHTML = '';
       if (wallpaperFileInput) wallpaperFileInput.value = '';
 
-      // Fallback to Dynamic
-      localStorage.setItem('caelestia_theme_source', 'caelestia-dynamic');
       const dynamicRadio = document.getElementById('themeSourceDynamic');
       if (dynamicRadio) dynamicRadio.checked = true;
       updateThemeSourceUI('caelestia-dynamic');
+
+      if (chrome?.storage?.local) {
+        chrome.storage.local.set({ caelestia_theme_source: 'caelestia-dynamic' }, () => {
+          chrome.storage.local.remove([
+            'caelestia_theme',
+            'caelestia_custom_palette',
+            'caelestia_custom_wallpaper_data',
+            'caelestia_custom_wallpaper_name',
+            'caelestia_theme_preset'
+          ], () => {
+            if (chrome.runtime?.sendMessage) {
+              chrome.runtime.sendMessage({ action: 'refreshTheme' }, () => void chrome.runtime.lastError);
+            }
+          });
+        });
+      }
+
       loadTheme();
-      showToast('Reset to Caelestia Dynamic theme');
+      showToast('Reset to desktop dynamic theme');
     });
   }
 

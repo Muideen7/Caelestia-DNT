@@ -255,8 +255,14 @@
       const imgData = ctx.getImageData(0, 0, width, height).data;
 
       // Sample pixels and bin by hue
-      const bins = Array(12).fill(0).map(() => ({ count: 0, rSum: 0, gSum: 0, bSum: 0, satSum: 0 }));
-      let totalSamples = 0;
+      const bins = Array(12).fill(0).map(() => ({
+        count: 0,
+        samples: 0,
+        rSum: 0,
+        gSum: 0,
+        bSum: 0,
+        satSum: 0
+      }));
 
       for (let i = 0; i < imgData.length; i += 16) { // step by 4 pixels (16 bytes)
         const r = imgData[i];
@@ -271,12 +277,12 @@
         if (l < 0.12 || l > 0.90 || s < 0.15) continue;
 
         const binIdx = Math.floor(h / 30) % 12;
-        bins[binIdx].count += 1 + s * 1.5; // weigh saturated colors higher
+        bins[binIdx].count += 1 + s * 1.5; // weigh saturated colors higher for ranking
+        bins[binIdx].samples += 1; // unweighted count for the channel average
         bins[binIdx].rSum += r;
         bins[binIdx].gSum += g;
         bins[binIdx].bSum += b;
         bins[binIdx].satSum += s;
-        totalSamples++;
       }
 
       // Find top color bin
@@ -284,7 +290,7 @@
       let dominantHex = '#f9b7a9'; // fallback
 
       if (bins[0] && bins[0].count > 0) {
-        const count = bins[0].count;
+        const count = Math.max(1, bins[0].samples);
         const avgR = bins[0].rSum / count;
         const avgG = bins[0].gSum / count;
         const avgB = bins[0].bSum / count;
@@ -320,7 +326,12 @@
         onSurface: hslToRgb(h, 0.15, 0.92),
         surfaceVariant: hslToRgb(h, 0.14, 0.16),
         onSurfaceVariant: hslToRgb(h, 0.12, 0.74),
+        background: hslToRgb(h, 0.12, 0.06),
+        onBackground: hslToRgb(h, 0.15, 0.92),
+        surfaceDim: hslToRgb(h, 0.12, 0.06),
+        surfaceBright: hslToRgb(h, 0.12, 0.24),
 
+        surfaceContainerLowest: hslToRgb(h, 0.12, 0.04),
         surfaceContainer: hslToRgb(h, 0.12, 0.10),
         surfaceContainerHigh: hslToRgb(h, 0.12, 0.13),
         surfaceContainerHighest: hslToRgb(h, 0.12, 0.16),
@@ -360,7 +371,12 @@
         onSurface: hslToRgb(h, 0.10, 0.12),
         surfaceVariant: hslToRgb(h, 0.10, 0.90),
         onSurfaceVariant: hslToRgb(h, 0.10, 0.32),
+        background: hslToRgb(h, 0.08, 0.98),
+        onBackground: hslToRgb(h, 0.10, 0.12),
+        surfaceDim: hslToRgb(h, 0.08, 0.86),
+        surfaceBright: hslToRgb(h, 0.08, 0.98),
 
+        surfaceContainerLowest: hslToRgb(h, 0.08, 1.0),
         surfaceContainer: hslToRgb(h, 0.08, 0.94),
         surfaceContainerHigh: hslToRgb(h, 0.08, 0.92),
         surfaceContainerHighest: hslToRgb(h, 0.08, 0.90),
