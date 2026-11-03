@@ -1,4 +1,4 @@
-<!-- Caelestia-DNT: Material You New Tab for Caelestia Shell & Hyprland -->
+<!-- Caelestia-DNT: Material You New Tab for Noctalia/Niri and Caelestia/Hyprland -->
 <h1 align="center">
 
 <img src="icons/icon128.png" width="64" alt="Caelestia-DNT Logo">
@@ -9,15 +9,16 @@ Caelestia-DNT: Dynamic New Tab
 
 <div align="center">
 
-**A keyboard-first, distraction-free new tab and dynamic site themer strictly synchronized with Caelestia Shell & Hyprland Linux.**
+**A keyboard-first, distraction-free new tab and dynamic site themer that follows your Linux desktop's Material You wallpaper palette.**
 
 </div>
 
 <div align="center">
 
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-6366f1?style=for-the-badge&logo=googlechrome&logoColor=white)](#)
-[![Chromium Compatible](https://img.shields.io/badge/Browsers-Brave%20%7C%20Chrome%20%7C%20Edge%20%7C%20Vivaldi-3b82f6?style=for-the-badge&logo=brave&logoColor=white)](#)
-[![Compositor](https://img.shields.io/badge/Compositor-Hyprland%20%2F%20Wayland-00c853?style=for-the-badge)](#)
+[![Chromium Compatible](https://img.shields.io/badge/Browsers-Thorium%20%7C%20Brave%20%7C%20Chrome%20%7C%20Edge%20%7C%20Vivaldi-3b82f6?style=for-the-badge&logo=brave&logoColor=white)](#)
+[![Noctalia + Niri](https://img.shields.io/badge/Noctalia%20%2B%20Niri-Supported-00c853?style=for-the-badge)](#)
+[![Caelestia + Hyprland](https://img.shields.io/badge/Caelestia%20%2B%20Hyprland-Supported-00c853?style=for-the-badge)](#)
 [![Material You](https://img.shields.io/badge/Material%20You-Dynamic%20M3-f59e0b?style=for-the-badge&logo=materialdesign&logoColor=white)](#)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](#)
 
@@ -27,9 +28,10 @@ Caelestia-DNT: Dynamic New Tab
   <a href="#-features">Features</a> •
   <a href="#-screenshots">Screenshots</a> •
   <a href="#-keyboard-shortcuts">Keyboard Shortcuts</a> •
-  <a href="#-installation-guide">Installation Guide</a> •
+  <a href="#-installation-cachyos--niri--noctalia">Noctalia/Niri Install</a> •
+  <a href="#-legacy-caelestia--hyprland">Caelestia/Hyprland</a> •
   <a href="#-dynamic-theming-engine">Dynamic Theming</a> •
-  <a href="#-privacy-policy">Privacy Policy</a> •
+  <a href="#-privacy">Privacy</a> •
   <a href="#-license">License</a>
 </p>
 
@@ -39,21 +41,24 @@ Caelestia-DNT: Dynamic New Tab
 
 ## ✨ Features
 
-- **Caelestia Shell Synchronization**: Automatically reads your desktop's live Material You color palette (`~/.local/state/caelestia/scheme.json`) whenever your wallpaper changes in Hyprland.
-- **Hyprland Tiling Compliance**: Respects Wayland tiling gaps, window borders, and normal window states without breaking your window manager layout.
-- **Zen / Focus Mode (<kbd>Z</kbd>)**: Opens by default in a clean, distraction-free view with a large clock, personalized greeting, and inspirational quotes. Enters immersive fullscreen and hides the browser address bar.
-- **Integrated Quick Search (<kbd>S</kbd>)**: Instant floating search overlay with tab-to-switch search engines (Google, DuckDuckGo, YouTube, GitHub, Reddit, Wikipedia, Brave).
-- **Curated Dynamic Website Theming**: Injects your desktop's exact wallpaper colors into **YouTube**, **GitHub**, **Reddit**, and **Wikipedia** with 100% dynamic token resolution and 0% CPU overhead.
-- **Dashboard Tools (<kbd>Z</kbd>)**: Quick shortcuts grid, daily interactive task checklist, and an auto-saving scratchpad for quick notes.
-- **Dynamic Motivational Quotes**: Curated collection across philosophy, anime, literature, and donghua with instant clipboard copy (<kbd>C</kbd>) and random refresh (<kbd>R</kbd>).
-- **Quick Browser Menu (<kbd>P</kbd>)**: Fast keyboard access to tabs, downloads, history, bookmarks, and preferences.
+- **Noctalia Shell synchronization**: Reads the palette Noctalia generates from your active wallpaper and applies it to the new tab and supported websites.
+- **Caelestia Shell synchronization**: Keeps the original Caelestia/Hyprland scheme-file workflow working.
+- **Wallpaper-driven everything**: The active wallpaper is copied into the extension, so the new tab background and colors always match the desktop.
+- **Niri-friendly**: No compositor-specific hacks; works with Niri's tiling and gaps. Window fullscreen is still available through the browser.
+- **Zen / Focus Mode (<kbd>Z</kbd>)**: Opens by default in a clean, distraction-free view with a large clock, personalized greeting, and inspirational quotes.
+- **Integrated Quick Search (<kbd>S</kbd>)**: Instant floating search overlay with a search-engine dropdown (Google, Brave, DuckDuckGo, YouTube, Wikipedia).
+- **Curated website theming**: Injects your desktop palette into **YouTube**, **GitHub**, **Reddit**, and **Wikipedia**.
+- **Optional browser chrome theme**: Generates a Thorium/Chromium theme so the tab strip, toolbar, and frame use the same palette.
+- **Dashboard tools**: Quick shortcuts grid, daily task checklist, and an auto-saving scratchpad.
+- **Dynamic motivational quotes**: Curated collection with instant clipboard copy (<kbd>C</kbd>) and random refresh (<kbd>R</kbd>).
+- **Quick Browser Menu (<kbd>P</kbd>)**: Fast keyboard access to tabs, downloads, history, bookmarks, extensions, and preferences.
 
 ---
 
 ## 📸 Screenshots
 
 ### 1. Zen / Focus Mode
-> Distraction-free view featuring large clock, greeting, inspirational quote, and wallpaper background.
+> Distraction-free view featuring a large clock, greeting, inspirational quote, and wallpaper background.
 
 <img src="screenshots/zen-mode.png" alt="Zen Mode" width="100%">
 
@@ -77,73 +82,151 @@ Caelestia-DNT: Dynamic New Tab
 
 | Key | Action | Description |
 | :---: | :--- | :--- |
-| <kbd>Z</kbd> | **Toggle Zen Mode** | Switch between minimalist Zen focus and full dashboard (hides address bar) |
-| <kbd>S</kbd> or <kbd>/</kbd> | **Instant Search** | Opens floating search bar with search engine cycling via <kbd>Tab</kbd> |
+| <kbd>Z</kbd> / <kbd>F11</kbd> | **Toggle Zen Mode** | Switch between minimalist Zen focus and full dashboard (native window fullscreen) |
+| <kbd>S</kbd> or <kbd>/</kbd> | **Instant Search** | Opens the floating search bar |
 | <kbd>P</kbd> | **Browser Menu** | Quick jump to tabs, history, downloads, bookmarks, and settings |
-| <kbd>,</kbd> | **Preferences** | Open options page for display name, search engine, and layout preferences |
-| <kbd>H</kbd> | **History** | Jump directly to browser browsing history |
-| <kbd>C</kbd> | **Copy Quote** | Instantly copy current inspirational quote to clipboard |
-| <kbd>R</kbd> | **New Quote** | Fetch a new random motivational quote |
-| <kbd>K</kbd> | **Toggle Shortcuts Bar** | Show or collapse bottom navigation key hints |
-| <kbd>Esc</kbd> | **Dismiss / Return** | Close open overlays, search dialogs, or return focus to the page |
+| <kbd>,</kbd> | **Preferences** | Open the options page |
+| <kbd>H</kbd> | **History** | Jump directly to browser history |
+| <kbd>D</kbd> | **Downloads** | Jump directly to downloads |
+| <kbd>B</kbd> | **Bookmarks** | Jump directly to bookmarks |
+| <kbd>E</kbd> | **Extensions** | Jump directly to extensions |
+| <kbd>C</kbd> | **Copy Quote** | Copy the current quote to the clipboard |
+| <kbd>R</kbd> | **New Quote** | Fetch a new random quote |
+| <kbd>K</kbd> | **Toggle Hints Bar** | Show or collapse the bottom navigation hints |
+| <kbd>?</kbd> | **Welcome Tour** | Reopen the onboarding wizard |
+| <kbd>Esc</kbd> | **Dismiss / Return** | Close overlays, search, or return focus to the page |
 
 ---
 
-## 📥 Installation Guide
+## 📥 Installation: CachyOS → Niri → Noctalia
 
 ### Prerequisites
-* Arch Linux (or any Linux distribution running **Hyprland** and **Caelestia Shell**).
-* Any Chromium-based browser (**Brave**, **Google Chrome**, **Microsoft Edge**, **Vivaldi**).
+
+- CachyOS / Arch Linux running **Niri** and **Noctalia Shell**.
+- A Chromium-based browser. **Thorium** is used in the examples.
+- `ImageMagick` (`magick`) for wallpaper resizing — already present on most CachyOS installs.
+
+### 1. Clone the extension
+
+```bash
+git clone https://github.com/Muideen7/Caelestia-DNT.git ~/.config/caelestia/caelestia-dnt
+cd ~/.config/caelestia/caelestia-dnt
+```
+
+### 2. Install the Noctalia bridge
+
+```bash
+./integrations/noctalia/install.sh
+```
+
+This writes `~/.config/noctalia/noctalia-dnt.toml`, copies the current wallpaper into the extension, and runs `noctalia msg templates-apply`. No background daemon is required.
+
+If your extension lives somewhere else:
+
+```bash
+./integrations/noctalia/install.sh --extension-dir /path/to/extension
+```
+
+### 3. Load into Thorium / Chromium
+
+1. Open `thorium://extensions` or `chrome://extensions`.
+2. Enable **Developer mode**.
+3. Click **Load unpacked** and select `~/.config/caelestia/caelestia-dnt`.
+4. Open a new tab (`Ctrl + T`).
+
+### 4. Optional: theme the actual tab strip
+
+Noctalia can also generate a Chromium theme extension:
+
+1. In `chrome://extensions`, click **Load unpacked**.
+2. Select `~/.cache/noctalia-dnt/thorium-theme`.
+3. Restart Thorium after a palette or light/dark change.
+
+This colors the browser frame, tab strip, toolbar, bookmark bar, and omnibox. The new tab itself is still rendered by Caelestia-DNT.
+
+### 5. Verify the live sync
+
+```bash
+noctalia msg color-scheme-get      # should start with "wallpaper"
+noctalia msg templates-apply
+noctalia msg wallpaper-next        # change wallpaper, then reopen the new tab
+noctalia msg theme-mode-toggle     # switch light/dark, then reopen the new tab
+```
+
+### How the Noctalia integration works
+
+Noctalia renders two user templates whenever the palette changes:
+
+| Generated file | Purpose |
+|---|---|
+| `<extension>/noctalia-theme.json` | Full Material 3 token snapshot read by the extension |
+| `<extension>/noctalia-wallpaper.jpg` | Resized copy of the active wallpaper |
+| `~/.cache/noctalia-dnt/thorium-theme/manifest.json` | Optional Chromium browser theme |
+
+Both extension files are gitignored, so the repo stays clean. See [`integrations/noctalia/README.md`](integrations/noctalia/README.md) for the template reference, manual configuration, and troubleshooting.
 
 ---
 
-### 1. Clone the Extension
+## 🦀 Legacy: Caelestia + Hyprland
+
+The original Caelestia workflow is still supported.
+
+### 1. Clone
+
 ```bash
 git clone https://github.com/Muideen7/Caelestia-DNT.git ~/.config/caelestia/caelestia-dnt
 ```
 
----
+### 2. Load the extension
 
-### 2. Load into Chromium Browser
-1. Open your browser and navigate to `chrome://extensions` (or `brave://extensions`).
-2. Toggle **Developer mode** in the top right corner.
-3. Click **Load unpacked** and select the `~/.config/caelestia/caelestia-dnt` directory.
-4. Open a new tab (`Ctrl + T`) to launch Caelestia-DNT!
+`chrome://extensions` → Developer mode → **Load unpacked** → select the clone directory.
 
----
+### 3. Sync the scheme on wallpaper/theme changes
 
-### 3. Configure Caelestia Shell Integration
-To sync wallpapers and colors automatically whenever your desktop theme changes, register the sync command in `~/.config/caelestia/cli.json`:
+Register the post-hooks in `~/.config/caelestia/cli.json`:
 
 ```json
 {
   "theme": {
-    "postHook": "cp -f "$HOME/.local/state/caelestia/scheme.json" "$HOME/.config/caelestia/caelestia-dnt/caelestia-theme.json""
+    "postHook": "cp -f \"$HOME/.local/state/caelestia/scheme.json\" \"$HOME/.config/caelestia/caelestia-dnt/caelestia-theme.json\""
   },
   "wallpaper": {
-    "postHook": "cp -f "$HOME/.local/state/caelestia/scheme.json" "$HOME/.config/caelestia/caelestia-dnt/caelestia-theme.json""
+    "postHook": "cp -f \"$HOME/.local/state/caelestia/scheme.json\" \"$HOME/.config/caelestia/caelestia-dnt/caelestia-theme.json\""
   }
 }
 ```
+
+The extension reads `noctalia-theme.json` first and falls back to `caelestia-theme.json`.
+
+### Optional desktop bridge (packed installs)
+
+`caelestia-bridge.py` serves the scheme and wallpaper over `http://127.0.0.1:39123` for setups where Noctalia/Caelestia cannot write inside the extension directory (for example, a Chrome Web Store install). It is not needed for the unpacked Noctalia workflow above.
 
 ---
 
 ## 🎨 Dynamic Theming Engine
 
-Caelestia-DNT utilizes **100% dynamic token resolution** with zero hardcoded colors:
+Caelestia-DNT resolves colors dynamically at runtime:
 
-1. **Wallpaper Extraction**: Whenever you switch wallpapers in Caelestia Shell, Material You extracts the dominant seed hue, generates tonal containers, surfaces, borders, and semantic accents.
-2. **PostHook Delivery**: The scheme is written to `caelestia-theme.json`, which the background service worker broadcasts into `chrome.storage.local`.
-3. **Declarative DOM Injection**: `content.js` resolves all CSS variables (`--bgColor-default`, `--color-accent-fg`, etc.) from the active palette and applies them dynamically to supported sites without layout breakage.
+1. **Palette generation**: Noctalia (or Caelestia) extracts a Material 3 palette from the active wallpaper.
+2. **Template delivery**: Noctalia's template engine writes `noctalia-theme.json` with all semantic roles, plus `noctalia-wallpaper.jpg`.
+3. **Extension application**: `newtab.js` maps the tokens to CSS custom properties and the wallpaper; the service worker broadcasts the same snapshot to `content.js`.
+4. **Site injection**: `content.js` remaps the design tokens of YouTube, GitHub, Reddit, and Wikipedia without breaking their layouts.
+
+Theme sources available in Preferences:
+
+- **Desktop Dynamic** — live Noctalia/Caelestia palette (default).
+- **Wallpaper Color Extractor** — upload any image and extract a palette in-browser.
+- **Designer Presets** — Caelestia Violet, Catppuccin Mocha, Tokyo Night, Nord Frost, Forest Matcha, Sunset Ember.
 
 ---
 
-## 🛡 Privacy Policy
+## 🛡 Privacy
 
-Caelestia-DNT is built strictly for personal privacy:
-- **No Analytics & No Trackers**: No telemetry, analytics, or remote logging.
-- **100% Local Storage**: Tasks, notes, display name, and preferences remain solely on your machine.
-- **No Ads & Free**: Completely open-source under the MIT License.
+- **No analytics or telemetry.**
+- Tasks, notes, display name, shortcuts, and preferences are stored locally.
+- The new tab uses a few optional network services: Open-Meteo and ipapi.co for the weather pill, Quotable/DummyJSON for occasional online quotes, Google's favicon service for shortcut icons, and Google Fonts for typography. These requests are not used for tracking, but they do leave your machine. Block them at the network level if you prefer a fully offline new tab.
+- The optional Python bridge binds to `127.0.0.1` only.
 
 ---
 
