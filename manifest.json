@@ -1,12 +1,13 @@
 {
   "manifest_version": 3,
   "name": "Caelestia-DNT",
-  "version": "1.3.0",
-  "description": "Dynamic Material You new tab strictly synchronized with Caelestia Shell and Hyprland Linux",
+  "version": "1.4.0",
+  "description": "Dynamic Material You new tab synchronized with Noctalia (Niri) and Caelestia (Hyprland) on Linux",
   "permissions": [
     "windows",
     "tabs",
-    "storage"
+    "storage",
+    "alarms"
   ],
   "host_permissions": [
     "http://127.0.0.1:39123/*",
