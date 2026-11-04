@@ -14,6 +14,10 @@ import pathlib
 import struct
 import sys
 
+# Prevent Python from creating __pycache__ inside the extension folder
+# (Chromium forbids loading unpacked extensions with directories starting with '_')
+sys.dont_write_bytecode = True
+
 # Import bridge resolvers
 CURRENT_DIR = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(CURRENT_DIR))
@@ -89,3 +93,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

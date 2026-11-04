@@ -22,6 +22,10 @@ import subprocess
 import sys
 import urllib.parse
 
+# Prevent Python from creating __pycache__ inside the extension folder
+# (Chromium forbids loading unpacked extensions with directories starting with '_')
+sys.dont_write_bytecode = True
+
 PORT = 39123
 HOST = "127.0.0.1"
 
