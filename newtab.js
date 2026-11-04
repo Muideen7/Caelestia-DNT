@@ -7,10 +7,13 @@
 
   // --- 0. Chromium New Tab Autofocus Workaround ---
   // When a new tab opens, Chromium traps focus inside the native Omnibox.
-  // Performing a single replace with ?focus=1 forces Chromium to yield full keyboard focus to web contents.
+  // Using chrome.runtime.getURL ensures an absolute extension URL so Brave does not reject chrome:// relative navigation.
   if (!window.location.search.includes('focus=1')) {
     const hash = window.location.hash || '';
-    window.location.replace(`newtab.html?focus=1${hash}`);
+    const targetUrl = (typeof chrome !== 'undefined' && chrome.runtime?.getURL)
+      ? chrome.runtime.getURL(`newtab.html?focus=1${hash}`)
+      : `newtab.html?focus=1${hash}`;
+    window.location.replace(targetUrl);
     return;
   }
 
@@ -183,19 +186,23 @@
           signal: AbortSignal.timeout(400)
         });
         if (bridgeResp.ok) {
-          theme = await bridgeResp.json();
-          fromBridge = true;
+          const bTheme = await bridgeResp.json();
+          if (bTheme && bTheme.colours && Object.keys(bTheme.colours).length > 0) {
+            theme = bTheme;
+            fromBridge = true;
+          }
         }
       } catch (_) {}
     }
 
     // 3C. Try bundled snapshots
-    if (!theme) {
+    if (!theme || !theme.colours) {
       for (const file of THEME_FILES) {
         try {
           const resp = await fetch(`./${file}?t=${Date.now()}`, { cache: 'no-store' });
           if (resp.ok) {
             theme = await resp.json();
+            fromBridge = false;
             break;
           }
         } catch (_) {}

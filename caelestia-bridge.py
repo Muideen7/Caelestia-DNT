@@ -30,6 +30,9 @@ PORT = 39123
 HOST = "127.0.0.1"
 
 HOME = pathlib.Path.home()
+PROJECT_DIR = pathlib.Path(__file__).resolve().parent
+BUNDLED_SCHEME = PROJECT_DIR / "caelestia-theme.json"
+BUNDLED_WP = PROJECT_DIR / "wallpaper.jpg"
 
 # 1. Noctalia Shell paths
 NOCTALIA_COLORS = HOME / ".config/noctalia/colors.json"
@@ -234,13 +237,16 @@ def noctalia_wallpaper():
 
 
 def caelestia_wallpaper():
-    if not WP_CURRENT.exists():
-        return None
-    try:
-        resolved = WP_CURRENT.resolve()
-        return resolved if resolved.exists() else None
-    except Exception:
-        return None
+    if WP_CURRENT.exists():
+        try:
+            resolved = WP_CURRENT.resolve()
+            if resolved.exists():
+                return resolved
+        except Exception:
+            pass
+    if BUNDLED_WP.exists():
+        return BUNDLED_WP
+    return None
 
 
 def gnome_wallpaper():
@@ -458,6 +464,8 @@ def noctalia_theme():
 
 def caelestia_theme():
     data = _read_json(SCHEME_JSON)
+    if not data and BUNDLED_SCHEME.exists():
+        data = _read_json(BUNDLED_SCHEME)
     if not data:
         return None
 
@@ -547,6 +555,9 @@ def generic_desktop_theme():
     mode = detect_system_color_scheme()
     info = detect_desktop()
 
+    bundled = _read_json(BUNDLED_SCHEME) or {}
+    colours = bundled.get("colours")
+
     theme_name = f"{info['desktop'].capitalize()} Dynamic" if info['desktop'] != 'linux' else "Linux Dynamic"
 
     return {
@@ -557,6 +568,7 @@ def generic_desktop_theme():
         "is_tiling": info["is_tiling"],
         "compositor": info["compositor"],
         "wallpaper_detected": bool(wp),
+        "colours": colours,
     }
 
 

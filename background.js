@@ -51,7 +51,7 @@ async function fetchThemeSnapshot() {
     });
     if (bridgeResp.ok) {
       const data = await bridgeResp.json();
-      if (data && (data.colours || data.wallpaper_url)) return data;
+      if (data && data.colours && Object.keys(data.colours).length > 0) return data;
     }
   } catch (_) {}
 

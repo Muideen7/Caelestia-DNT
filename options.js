@@ -40,16 +40,24 @@
     let theme = null;
     try {
       const bridgeResp = await fetch('http://127.0.0.1:39123/theme', { signal: AbortSignal.timeout(600) });
-      if (bridgeResp.ok) theme = await bridgeResp.json();
+      if (bridgeResp.ok) {
+        const bData = await bridgeResp.json();
+        if (bData && bData.colours && Object.keys(bData.colours).length > 0) {
+          theme = bData;
+        }
+      }
     } catch (_) {}
 
-    if (!theme) {
+    if (!theme || !theme.colours) {
       for (const file of ['noctalia-theme.json', 'caelestia-theme.json']) {
         try {
           const resp = await fetch(`./${file}?t=${Date.now()}`, { cache: 'no-store' });
           if (resp.ok) {
-            theme = await resp.json();
-            break;
+            const fileTheme = await resp.json();
+            if (fileTheme && fileTheme.colours) {
+              theme = fileTheme;
+              break;
+            }
           }
         } catch (_) {}
       }
