@@ -971,23 +971,23 @@
   }
 
   function buildUniversalCSS(colors, isDark) {
-    const bg = getHex(colors.background) || getHex(colors.surface) || (isDark ? '#130d0b' : '#fff8f6');
-    const surfaceLow = getHex(colors.surfaceContainerLow) || (isDark ? '#1a110f' : '#f8edea');
-    const surfaceMid = getHex(colors.surfaceContainer) || getHex(colors.surface) || (isDark ? '#221715' : '#f4e7e4');
-    const surfaceHigh = getHex(colors.surfaceContainerHigh) || (isDark ? '#291d1a' : '#efe0dc');
-    const surfaceHighest = getHex(colors.surfaceContainerHighest) || getHex(colors.surfaceVariant) || (isDark ? '#302220' : '#e8dad6');
+    const bg = getHex(colors.background) || getHex(colors.surface) || (isDark ? '#0d0e12' : '#fff8f6');
+    const surfaceLow = getHex(colors.surfaceContainerLow) || (isDark ? '#111318' : '#f8edea');
+    const surfaceMid = getHex(colors.surfaceContainer) || getHex(colors.surface) || (isDark ? '#171a1f' : '#f4e7e4');
+    const surfaceHigh = getHex(colors.surfaceContainerHigh) || (isDark ? '#1d2026' : '#efe0dc');
+    const surfaceHighest = getHex(colors.surfaceContainerHighest) || getHex(colors.surfaceVariant) || (isDark ? '#23262d' : '#e8dad6');
 
-    const onSurface = getHex(colors.onSurface) || (isDark ? '#f9e0db' : '#1c1b1f');
-    const onSurfaceVar = getHex(colors.onSurfaceVariant) || (isDark ? '#bca6a2' : '#49454e');
-    const outline = getHex(colors.outlineVariant) || getHex(colors.outline) || (isDark ? '#554441' : '#c4c6d0');
+    const onSurface = getHex(colors.onSurface) || (isDark ? '#e3e5f0' : '#1c1b1f');
+    const onSurfaceVar = getHex(colors.onSurfaceVariant) || (isDark ? '#a8abb5' : '#49454e');
+    const outline = getHex(colors.outlineVariant) || getHex(colors.outline) || (isDark ? '#454850' : '#c4c6d0');
 
-    const primary = getHex(colors.primary) || (isDark ? '#f9b7a9' : '#8c4e44');
-    const onPrimary = getHex(colors.onPrimary) || (isDark ? '#61342a' : '#ffffff');
-    const primContainer = getHex(colors.primaryContainer) || (isDark ? '#76453b' : '#ffdad4');
-    const onPrimContainer = getHex(colors.onPrimaryContainer) || (isDark ? '#ffdbd4' : '#3a0b06');
+    const primary = getHex(colors.primary) || (isDark ? '#b6c6ed' : '#8c4e44');
+    const onPrimary = getHex(colors.onPrimary) || (isDark ? '#304060' : '#ffffff');
+    const primContainer = getHex(colors.primaryContainer) || (isDark ? '#425274' : '#ffdad4');
+    const onPrimContainer = getHex(colors.onPrimaryContainer) || (isDark ? '#d9e3ff' : '#3a0b06');
 
-    const secondary = getHex(colors.secondary) || (isDark ? '#e7bdb4' : '#775651');
-    const tertiary = getHex(colors.tertiary) || (isDark ? '#ffd9b0' : '#705b2e');
+    const secondary = getHex(colors.secondary) || (isDark ? '#bfc6dc' : '#775651');
+    const tertiary = getHex(colors.tertiary) || (isDark ? '#efdfff' : '#705b2e');
 
     return `
       /* --- Caelestia Universal Dynamic Theming (Extracted from Wallpaper) --- */

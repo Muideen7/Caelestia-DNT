@@ -100,11 +100,38 @@
               if (chrome?.storage?.local) {
                 chrome.storage.local.set({ caelestia_theme: { ...theme, colours: extracted } });
               }
+              try {
+                localStorage.setItem('caelestia_cached_theme', JSON.stringify({
+                  colours: extracted,
+                  mode: mode,
+                  name: theme.name,
+                  desktop: theme.desktop,
+                  transparency: theme.transparency,
+                  wallpaper_url: resolvedWp,
+                  username: theme.username
+                }));
+              } catch (_) {}
             }
           };
           probe.src = resolvedWp;
         }
       }
+
+      // Persist to localStorage for 0ms instant display on subsequent new tabs
+      try {
+        localStorage.setItem('caelestia_cached_theme', JSON.stringify({
+          colours: theme.colours,
+          mode: mode,
+          name: theme.name,
+          desktop: theme.desktop,
+          transparency: theme.transparency,
+          wallpaper_url: wpUrl,
+          username: theme.username
+        }));
+        if (wpUrl) {
+          localStorage.setItem('caelestia_cached_wallpaper', wpUrl);
+        }
+      } catch (_) {}
     } catch (e) {
       console.debug('Error applying theme tokens:', e);
     }
@@ -112,6 +139,20 @@
 
   async function loadCaelestiaTheme() {
     const themeSource = localStorage.getItem('caelestia_theme_source') || 'caelestia-dynamic';
+
+    // 0. Synchronously restore cached theme immediately to prevent any delay/revert
+    if (themeSource === 'caelestia-dynamic' && !lastThemeJsonStr) {
+      try {
+        const cachedStr = localStorage.getItem('caelestia_cached_theme');
+        if (cachedStr) {
+          const cachedTheme = JSON.parse(cachedStr);
+          if (cachedTheme && cachedTheme.colours) {
+            applyTheme(cachedTheme, false);
+            lastThemeJsonStr = JSON.stringify(cachedTheme);
+          }
+        }
+      } catch (_) {}
+    }
 
     // 1. Locally extracted wallpaper palette.
     if (themeSource === 'wallpaper-upload') {
@@ -331,24 +372,38 @@
   // --- Dynamic Per-Tab Quotes (Donghua, Anime, Philosophy, Science, Online) ---
   const quotesEngine = window.CaelestiaQuotes;
 
-  async function updateTabQuote() {
+  async function updateTabQuote(forceNew = false) {
     if (!dailyQuoteEl) return;
 
-    // 1. Immediately display a random curated quote from our extensive offline database
-    // (ensures 0ms instant display without layout shift)
-    if (quotesEngine?.getRandomLocalQuote) {
-      const initialQuote = quotesEngine.getRandomLocalQuote();
-      dailyQuoteEl.textContent = quotesEngine.formatQuote(initialQuote);
+    // If quote was already injected during critical 0ms head render and this is not an explicit refresh, keep it stable!
+    if (!forceNew && dailyQuoteEl.getAttribute('data-quote-loaded') === 'true' && dailyQuoteEl.textContent.trim()) {
+      return;
     }
 
-    // 2. 50% chance to fetch an online quote from public APIs when online
-    if (Math.random() > 0.5 && quotesEngine?.fetchOnlineQuote) {
+    // Immediately display a random curated quote from our extensive offline database
+    // (ensures 0ms instant display without any layout shift or flashing)
+    if (quotesEngine?.getRandomLocalQuote) {
+      const initialQuote = quotesEngine.getRandomLocalQuote();
+      const formatted = quotesEngine.formatQuote(initialQuote);
+      dailyQuoteEl.textContent = formatted;
+      dailyQuoteEl.setAttribute('data-quote-loaded', 'true');
+      try {
+        localStorage.setItem('caelestia_cached_quote', formatted);
+      } catch (_) {}
+    }
+
+    // Only when user explicitly presses 'R' to refresh quote, try fetching an online quote
+    if (forceNew && quotesEngine?.fetchOnlineQuote) {
       try {
         const onlineQuote = await quotesEngine.fetchOnlineQuote();
         if (onlineQuote && onlineQuote.quote && dailyQuoteEl) {
-          dailyQuoteEl.textContent = quotesEngine.formatQuote(onlineQuote);
+          const formatted = quotesEngine.formatQuote(onlineQuote);
+          dailyQuoteEl.textContent = formatted;
+          try {
+            localStorage.setItem('caelestia_cached_quote', formatted);
+          } catch (_) {}
         }
-      } catch (err) {
+      } catch (_) {
         // Fallback remains the initial curated quote
       }
     }
@@ -1122,7 +1177,7 @@
     }
     if (key === 'r') {
       e.preventDefault();
-      updateTabQuote();
+      updateTabQuote(true);
       return;
     }
 

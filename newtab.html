@@ -9,6 +9,50 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="newtab.css">
+  <script>
+    // Critical 0ms render path: apply cached theme & wallpaper BEFORE first paint
+    // to prevent any flash of default colors or delay.
+    (function() {
+      try {
+        const cachedStr = localStorage.getItem('caelestia_cached_theme');
+        if (cachedStr) {
+          const t = JSON.parse(cachedStr);
+          const root = document.documentElement;
+          if (t.mode) root.setAttribute('data-theme', t.mode);
+          if (t.transparency === false) root.setAttribute('data-transparency', 'false');
+          if (t.colours) {
+            let css = '';
+            for (const [k, v] of Object.entries(t.colours)) {
+              if (typeof v !== 'string') continue;
+              const hex = v.startsWith('#') ? v : '#' + v;
+              const kebab = k.replace(/([a-z0-9]|(?=[A-Z]))([A-Z])/g, '$1-$2').toLowerCase();
+              css += `--md-sys-color-${kebab}:${hex};`;
+            }
+            root.style.cssText = css;
+          }
+        }
+        const cachedWp = localStorage.getItem('caelestia_cached_wallpaper');
+        if (cachedWp) {
+          document.addEventListener('DOMContentLoaded', function() {
+            const wp = document.getElementById('wallpaperBg');
+            if (wp && !wp.style.backgroundImage) {
+              wp.style.backgroundImage = 'url("' + cachedWp + '")';
+            }
+          });
+        }
+        const cachedQuote = localStorage.getItem('caelestia_cached_quote');
+        if (cachedQuote) {
+          document.addEventListener('DOMContentLoaded', function() {
+            const qEl = document.getElementById('dailyQuote');
+            if (qEl && !qEl.textContent.trim()) {
+              qEl.textContent = cachedQuote;
+              qEl.setAttribute('data-quote-loaded', 'true');
+            }
+          });
+        }
+      } catch (e) {}
+    })();
+  </script>
 </head>
 <body tabindex="-1" autofocus>
   <!-- Invisible input to pull Omnibox focus automatically upon new tab creation -->
@@ -83,7 +127,7 @@
         <span class="date-text" id="dateText">Sunday, November 1</span>
       </div>
       <!-- Daily Thought / Quote -->
-      <div class="daily-quote" id="dailyQuote">"Simplicity is the ultimate sophistication."</div>
+      <div class="daily-quote" id="dailyQuote"></div>
     </section>
 
     <!-- Floating Material 3 Search Bar -->
