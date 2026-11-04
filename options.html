@@ -51,8 +51,15 @@
           <span class="material-symbols-rounded icon">palette</span>
           <h2>Theming & Wallpaper</h2>
         </div>
-        <p class="card-desc">Choose how Caelestia-DNT styles your new tab and supported websites.</p>
-        <p class="field-hint">Noctalia + Niri: run <strong>./integrations/noctalia/install.sh</strong> once to write the live palette.</p>
+        <p class="card-desc">Choose how Caelestia-DNT styles your new tab and supported websites across all Linux desktop environments.</p>
+
+        <!-- Desktop Environment & Compositor Detection Banner -->
+        <div class="desktop-status-banner" id="desktopStatusBanner" style="display: flex; align-items: center; gap: 10px; background-color: var(--md-sys-color-surface-container-high); border: 1px solid var(--md-sys-color-outline-variant); border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 16px;">
+          <span class="material-symbols-rounded" style="color: var(--md-sys-color-primary); font-size: 20px;">desktop_windows</span>
+          <span id="desktopStatusText" style="font-size: 13px;">Detecting desktop environment & compositor...</span>
+        </div>
+
+        <p class="field-hint">Supports Noctalia (Niri), Caelestia (Hyprland), GNOME, KDE Plasma, Sway, XFCE, Matugen, and Pywal.</p>
 
         <!-- Theme Mode Selection -->
         <div class="field-group">
@@ -63,8 +70,8 @@
               <div class="radio-card-content">
                 <span class="material-symbols-rounded">sync</span>
                 <div>
-                  <strong>Desktop Dynamic (Default)</strong>
-                  <p>Auto-syncs with Noctalia Shell on Niri and Caelestia Shell on Hyprland.</p>
+                  <strong>Desktop Dynamic (Universal Linux)</strong>
+                  <p>Auto-syncs with your wallpaper palette from Noctalia, Caelestia, GNOME, KDE, or window managers.</p>
                 </div>
               </div>
             </label>
@@ -180,10 +187,60 @@
           </div>
         </div>
 
+        <!-- Fullscreen Strategy -->
+        <div class="field-group" style="margin-top: 18px;">
+          <label>Fullscreen & Tiling Window Manager Strategy</label>
+          <div class="radio-cards">
+            <label class="radio-card">
+              <input type="radio" name="fullscreenStrategy" value="tiling-immersive" id="strategyTiling" checked>
+              <div class="radio-card-content">
+                <span class="material-symbols-rounded">view_quilt</span>
+                <div>
+                  <strong>Tiling Immersive (Recommended for Niri, Hyprland, Sway, i3)</strong>
+                  <p>Edge-to-edge inside your window/tile. Preserves tiling columns, gaps, and status bar without forcing monitor fullscreen.</p>
+                </div>
+              </div>
+            </label>
+
+            <label class="radio-card">
+              <input type="radio" name="fullscreenStrategy" value="native-display" id="strategyNative">
+              <div class="radio-card-content">
+                <span class="material-symbols-rounded">fullscreen</span>
+                <div>
+                  <strong>Native Display Fullscreen (F11)</strong>
+                  <p>Requests browser window fullscreen across your entire monitor output.</p>
+                </div>
+              </div>
+            </label>
+
+            <label class="radio-card">
+              <input type="radio" name="fullscreenStrategy" value="tab-fullscreen" id="strategyTab">
+              <div class="radio-card-content">
+                <span class="material-symbols-rounded">open_in_full</span>
+                <div>
+                  <strong>HTML5 Tab Fullscreen</strong>
+                  <p>Uses standard web fullscreen to expand the new tab contents.</p>
+                </div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="toggle-row">
+          <div>
+            <strong>Zen Mode Fullscreen</strong>
+            <p>Automatically activate your chosen fullscreen strategy whenever Zen Mode (<kbd>Z</kbd>) is opened.</p>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="toggleZenFullscreen" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+
         <div class="toggle-row">
           <div>
             <strong>Show Navigation Hints Bar</strong>
-            <p>Displays the top-right keyboard navigation pills (<kbd>S</kbd>, <kbd>Z</kbd>, <kbd>P</kbd>, <kbd>,</kbd>).</p>
+            <p>Displays the top-right keyboard navigation pills (<kbd>S</kbd>, <kbd>Z</kbd>, <kbd>F</kbd>, <kbd>P</kbd>, <kbd>,</kbd>).</p>
           </div>
           <label class="switch">
             <input type="checkbox" id="toggleHints">

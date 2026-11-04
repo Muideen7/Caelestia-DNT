@@ -19,15 +19,50 @@ async function getThemeSource() {
   }
 }
 
-// Try the Noctalia snapshot first, then the bundled Caelestia snapshot.
+// Try Native Messaging Host first, then HTTP bridge, then bundled snapshot files.
 async function fetchThemeSnapshot() {
+  // 1. Try Native Messaging Host
+  if (chrome.runtime?.sendNativeMessage) {
+    try {
+      const nativeTheme = await new Promise((resolve) => {
+        chrome.runtime.sendNativeMessage(
+          'com.caelestia.dnt',
+          { action: 'getTheme' },
+          (response) => {
+            if (chrome.runtime.lastError || !response || response.status !== 'ok') {
+              resolve(null);
+            } else {
+              resolve(response.theme);
+            }
+          }
+        );
+      });
+      if (nativeTheme && (nativeTheme.colours || nativeTheme.wallpaper_url || nativeTheme.wallpaper_path)) {
+        return nativeTheme;
+      }
+    } catch (_) {}
+  }
+
+  // 2. Try Local HTTP Bridge
+  try {
+    const bridgeResp = await fetch('http://127.0.0.1:39123/theme', {
+      cache: 'no-store',
+      signal: AbortSignal.timeout(500)
+    });
+    if (bridgeResp.ok) {
+      const data = await bridgeResp.json();
+      if (data && (data.colours || data.wallpaper_url)) return data;
+    }
+  } catch (_) {}
+
+  // 3. Fallback to bundled snapshot files
   for (const file of THEME_FILES) {
     try {
       const url = chrome.runtime.getURL(file);
       const resp = await fetch(`${url}?t=${Date.now()}`, { cache: 'no-store' });
       if (resp.ok) return await resp.json();
     } catch (_) {
-      // Try the next candidate.
+      // Try next candidate
     }
   }
   return null;
@@ -89,6 +124,13 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
 
   if (msg.action === 'setFullscreen') {
+    // If tiling-immersive is requested, do not force the OS window into display fullscreen.
+    // This allows tiling managers (Niri, Hyprland, Sway, etc.) to keep gaps, status bar, and tiling columns.
+    if (msg.strategy === 'tiling-immersive') {
+      sendResponse({ status: 'ok', state: 'tiling-immersive', fullscreen: !!msg.fullscreen });
+      return true;
+    }
+
     const targetWinId = sender.tab?.windowId;
     const targetState = msg.fullscreen ? 'fullscreen' : 'normal';
 
@@ -108,6 +150,33 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       });
     }
     return true; // Keep asynchronous response channel open
+  }
+
+  if (msg.action === 'getDesktopInfo') {
+    if (chrome.runtime?.sendNativeMessage) {
+      chrome.runtime.sendNativeMessage(
+        'com.caelestia.dnt',
+        { action: 'getDesktopInfo' },
+        (resp) => {
+          if (!chrome.runtime.lastError && resp?.status === 'ok' && resp.desktop_info) {
+            sendResponse(resp.desktop_info);
+          } else {
+            // Fallback to HTTP bridge
+            fetch('http://127.0.0.1:39123/desktop-info', { signal: AbortSignal.timeout(400) })
+              .then((r) => r.json())
+              .then((data) => sendResponse(data))
+              .catch(() => sendResponse(null));
+          }
+        }
+      );
+      return true;
+    }
+
+    fetch('http://127.0.0.1:39123/desktop-info', { signal: AbortSignal.timeout(400) })
+      .then((r) => r.json())
+      .then((data) => sendResponse(data))
+      .catch(() => sendResponse(null));
+    return true;
   }
 
   if (msg.action === 'openSettings') {

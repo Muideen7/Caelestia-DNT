@@ -7,7 +7,8 @@
     "windows",
     "tabs",
     "storage",
-    "alarms"
+    "alarms",
+    "nativeMessaging"
   ],
   "host_permissions": [
     "http://127.0.0.1:39123/*",

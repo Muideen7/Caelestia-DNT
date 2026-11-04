@@ -456,6 +456,70 @@
     });
   }
 
+  // --- 5B. Fullscreen & Tiling Window Manager Strategy ---
+  const savedStrategy = localStorage.getItem('caelestia_fullscreen_strategy') || 'tiling-immersive';
+  const strategyRadio = document.querySelector(`input[name="fullscreenStrategy"][value="${savedStrategy}"]`);
+  if (strategyRadio) strategyRadio.checked = true;
+
+  document.querySelectorAll('input[name="fullscreenStrategy"]').forEach((radio) => {
+    radio.addEventListener('change', () => {
+      const val = radio.value;
+      localStorage.setItem('caelestia_fullscreen_strategy', val);
+      if (chrome?.storage?.local) {
+        chrome.storage.local.set({ caelestia_fullscreen_strategy: val });
+      }
+      showToast(`Fullscreen strategy: ${val === 'tiling-immersive' ? 'Tiling Immersive' : val}`);
+    });
+  });
+
+  const toggleZenFullscreen = document.getElementById('toggleZenFullscreen');
+  if (toggleZenFullscreen) {
+    toggleZenFullscreen.checked = localStorage.getItem('caelestia_zen_fullscreen') !== 'false';
+    toggleZenFullscreen.addEventListener('change', () => {
+      const isChecked = toggleZenFullscreen.checked;
+      localStorage.setItem('caelestia_zen_fullscreen', String(isChecked));
+      if (chrome?.storage?.local) {
+        chrome.storage.local.set({ caelestia_zen_fullscreen: isChecked });
+      }
+      showToast(isChecked ? 'Zen Mode fullscreen enabled' : 'Zen Mode fullscreen disabled');
+    });
+  }
+
+  // --- 5C. Desktop Environment & Bridge Detection Banner ---
+  const desktopStatusText = document.getElementById('desktopStatusText');
+  async function checkDesktopStatus() {
+    if (!desktopStatusText) return;
+    try {
+      let info = null;
+      if (chrome?.runtime?.sendMessage) {
+        info = await new Promise((resolve) => {
+          chrome.runtime.sendMessage({ action: 'getDesktopInfo' }, (res) => {
+            resolve(res);
+          });
+        });
+      }
+      if (!info) {
+        const resp = await fetch('http://127.0.0.1:39123/desktop-info', { signal: AbortSignal.timeout(600) });
+        if (resp.ok) info = await resp.json();
+      }
+
+      if (info) {
+        const de = (info.desktop || 'Linux').toUpperCase();
+        const comp = info.compositor || 'Compositor';
+        const tilingTag = info.is_tiling ? ' • Tiling' : '';
+        const wpTag = info.wallpaper ? ' • Wallpaper Linked' : '';
+        desktopStatusText.textContent = `Connected: ${de} (${comp}${tilingTag})${wpTag} • Mode: ${(info.mode || 'dark').toUpperCase()}`;
+      } else {
+        desktopStatusText.textContent = 'Bridge Idle: Run ./caelestia-bridge.py or ./install-native-host.sh for live sync.';
+      }
+    } catch (_) {
+      if (desktopStatusText) {
+        desktopStatusText.textContent = 'Bridge Idle: Run ./caelestia-bridge.py or ./install-native-host.sh for live sync.';
+      }
+    }
+  }
+  checkDesktopStatus();
+
   // --- 6. Navigation Hints Bar ---
   const showHints = localStorage.getItem('caelestia_show_hints') !== 'false';
   if (toggleHints) {

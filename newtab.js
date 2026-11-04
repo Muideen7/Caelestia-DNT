@@ -57,10 +57,14 @@
         themeModeEl.textContent = mode.charAt(0).toUpperCase() + mode.slice(1);
       }
       if (themeNameEl) {
-        const name = theme.name || 'Dynamic';
-        themeNameEl.textContent = theme.desktop === 'noctalia'
-          ? name
-          : `Caelestia ${name.charAt(0).toUpperCase() + name.slice(1)}`;
+        let name = theme.name || 'Dynamic';
+        if (theme.desktop === 'noctalia') {
+          themeNameEl.textContent = name;
+        } else if (theme.desktop === 'caelestia') {
+          themeNameEl.textContent = `Caelestia ${name.charAt(0).toUpperCase() + name.slice(1)}`;
+        } else {
+          themeNameEl.textContent = name;
+        }
       }
 
       if (theme.username && !localStorage.getItem('caelestia_username')) {
@@ -76,11 +80,27 @@
         }
       }
 
-      if (theme.wallpaper) {
-        const isAbsolute = /^(?:https?:|data:|blob:)/i.test(theme.wallpaper);
-        setWallpaper(isAbsolute ? theme.wallpaper : `${theme.wallpaper}?t=${Date.now()}`);
-      } else if (fromBridge && theme.wallpaper_url) {
-        setWallpaper(`${theme.wallpaper_url}?t=${Date.now()}`);
+      const wpUrl = theme.wallpaper_url || theme.wallpaper;
+      if (wpUrl) {
+        const isAbsolute = /^(?:https?:|data:|blob:)/i.test(wpUrl);
+        const resolvedWp = isAbsolute ? wpUrl : `${wpUrl}?t=${Date.now()}`;
+        setWallpaper(resolvedWp);
+
+        // If theme has no pre-computed color tokens, extract dynamically from wallpaper
+        if (!theme.colours && engine?.extractPaletteFromImage) {
+          const probe = new Image();
+          probe.crossOrigin = 'anonymous';
+          probe.onload = () => {
+            const extracted = engine.extractPaletteFromImage(probe, mode !== 'light');
+            if (extracted && engine.applyPaletteToRoot) {
+              engine.applyPaletteToRoot(extracted, root);
+              if (chrome?.storage?.local) {
+                chrome.storage.local.set({ caelestia_theme: { ...theme, colours: extracted } });
+              }
+            }
+          };
+          probe.src = resolvedWp;
+        }
       }
     } catch (e) {
       console.debug('Error applying theme tokens:', e);
@@ -128,21 +148,48 @@
       }
     }
 
-    // 3. Desktop-dynamic: optional local bridge, then the generated snapshot.
+    // 3. Desktop-dynamic: Native Messaging Host -> Local HTTP Bridge -> Bundled Snapshots
     let theme = null;
     let fromBridge = false;
 
-    try {
-      const bridgeResp = await fetch('http://127.0.0.1:39123/theme', {
-        cache: 'no-store',
-        signal: AbortSignal.timeout(400)
-      });
-      if (bridgeResp.ok) {
-        theme = await bridgeResp.json();
-        fromBridge = true;
-      }
-    } catch (_) {}
+    // 3A. Try Native Messaging Host
+    if (chrome?.runtime?.sendNativeMessage) {
+      try {
+        const nativeResp = await new Promise((resolve) => {
+          chrome.runtime.sendNativeMessage(
+            'com.caelestia.dnt',
+            { action: 'getTheme' },
+            (resp) => {
+              if (chrome.runtime.lastError || !resp || resp.status !== 'ok') {
+                resolve(null);
+              } else {
+                resolve(resp.theme);
+              }
+            }
+          );
+        });
+        if (nativeResp && (nativeResp.colours || nativeResp.wallpaper_url || nativeResp.wallpaper_path)) {
+          theme = nativeResp;
+          fromBridge = true;
+        }
+      } catch (_) {}
+    }
 
+    // 3B. Try Local HTTP Bridge
+    if (!theme) {
+      try {
+        const bridgeResp = await fetch('http://127.0.0.1:39123/theme', {
+          cache: 'no-store',
+          signal: AbortSignal.timeout(400)
+        });
+        if (bridgeResp.ok) {
+          theme = await bridgeResp.json();
+          fromBridge = true;
+        }
+      } catch (_) {}
+    }
+
+    // 3C. Try bundled snapshots
     if (!theme) {
       for (const file of THEME_FILES) {
         try {
@@ -412,13 +459,109 @@
   }
   updateHintsVisibility();
 
-  // --- 5. Zen / Focus Mode (Default ON for every new tab) ---
+  // --- 5. Zen / Focus Mode & Compositor-Aware Fullscreen Engine ---
   const btnZenToggle = document.getElementById('btnZenToggle');
+  const btnFullscreenToggle = document.getElementById('btnFullscreenToggle');
+  const iconFullscreen = document.getElementById('iconFullscreen');
   const searchSection = document.getElementById('searchSection');
   const searchInput = document.getElementById('searchInput');
 
   let isZenMode = localStorage.getItem('caelestia_zen') !== 'false';
   let isZenFullscreenEnabled = localStorage.getItem('caelestia_zen_fullscreen') !== 'false';
+  let isFullscreenActive = false;
+
+  function getFullscreenStrategy() {
+    return localStorage.getItem('caelestia_fullscreen_strategy') || 'tiling-immersive';
+  }
+
+  // --- Compositor & Tiling Window Manager Resizing Engine ---
+  function updateCompositorLayoutClasses() {
+    const root = document.body;
+    if (!root) return;
+
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    // Clean old layout classes
+    root.classList.remove('layout-compact', 'layout-split', 'layout-wide', 'layout-ultrawide', 'compositor-single-app');
+
+    // 1. Tiling Compact: Width < 700px (1/3 Niri column, vertical monitor, or narrow split)
+    if (width < 700 || (width / Math.max(1, height)) < 0.85) {
+      root.classList.add('layout-compact');
+    } else if (width < 1150) {
+      // 2. Tiling Split: 700px - 1150px (50/50 horizontal split)
+      root.classList.add('layout-split');
+    } else if (width <= 1800) {
+      // 3. Wide: Standard widescreen / full workspace
+      root.classList.add('layout-wide');
+    } else {
+      // 4. Ultra-wide: 21:9 or 32:9 monitors
+      root.classList.add('layout-ultrawide');
+    }
+
+    // 5. Compositor Single-App / Monocle: When window spans practically the entire display workspace
+    if (window.screen && width >= (screen.availWidth - 60) && height >= (screen.availHeight - 90)) {
+      root.classList.add('compositor-single-app');
+    }
+  }
+
+  // Initialize observer and window resize listener
+  if (window.ResizeObserver) {
+    const resizeObserver = new ResizeObserver(() => {
+      requestAnimationFrame(updateCompositorLayoutClasses);
+    });
+    resizeObserver.observe(document.documentElement);
+  }
+  window.addEventListener('resize', () => {
+    requestAnimationFrame(updateCompositorLayoutClasses);
+  }, { passive: true });
+  updateCompositorLayoutClasses();
+
+  async function toggleFullscreen(userTriggered = true, forceState = null) {
+    const strategy = getFullscreenStrategy();
+    const shouldBeFullscreen = forceState !== null ? forceState : !isFullscreenActive;
+    isFullscreenActive = shouldBeFullscreen;
+
+    if (iconFullscreen) {
+      iconFullscreen.textContent = shouldBeFullscreen ? 'fullscreen_exit' : 'fullscreen';
+    }
+    if (btnFullscreenToggle) {
+      btnFullscreenToggle.classList.toggle('active', shouldBeFullscreen);
+      btnFullscreenToggle.title = shouldBeFullscreen ? 'Exit Fullscreen (F)' : 'Toggle Immersive Fullscreen (F)';
+    }
+
+    if (strategy === 'tiling-immersive') {
+      // Edge-to-edge immersion inside the current window tile / column without breaking tiling
+      document.body.classList.toggle('tiling-fullscreen', shouldBeFullscreen);
+    } else if (strategy === 'tab-fullscreen') {
+      try {
+        if (shouldBeFullscreen && !document.fullscreenElement && document.documentElement.requestFullscreen) {
+          await document.documentElement.requestFullscreen();
+        } else if (!shouldBeFullscreen && document.fullscreenElement && document.exitFullscreen) {
+          await document.exitFullscreen();
+        }
+      } catch (err) {
+        console.debug('Tab fullscreen error:', err);
+      }
+    } else {
+      // native-display (F11 OS display fullscreen)
+      try {
+        if (chrome?.runtime?.sendMessage) {
+          chrome.runtime.sendMessage({
+            action: 'setFullscreen',
+            fullscreen: shouldBeFullscreen,
+            strategy: 'native-display'
+          });
+        }
+      } catch (err) {
+        console.debug('Window fullscreen error:', err);
+      }
+    }
+  }
+
+  if (btnFullscreenToggle) {
+    btnFullscreenToggle.addEventListener('click', () => toggleFullscreen(true));
+  }
 
   async function applyZenMode(enabled, userTriggered = false) {
     isZenMode = enabled;
@@ -432,19 +575,8 @@
       searchSection.classList.remove('search-active');
     }
 
-    // Toggle immersive browser window fullscreen (F11) to hide address bar & tabs
     if (userTriggered && isZenFullscreenEnabled) {
-      try {
-        if (chrome?.runtime?.sendMessage) {
-          chrome.runtime.sendMessage({ action: 'setFullscreen', fullscreen: enabled });
-        } else if (enabled && !document.fullscreenElement && document.documentElement.requestFullscreen) {
-          await document.documentElement.requestFullscreen();
-        } else if (!enabled && document.fullscreenElement && document.exitFullscreen) {
-          await document.exitFullscreen();
-        }
-      } catch (err) {
-        console.debug('Fullscreen toggle error:', err);
-      }
+      await toggleFullscreen(false, enabled);
     }
   }
 
@@ -463,11 +595,11 @@
     });
   }
   document.addEventListener('fullscreenchange', () => {
-    if (isZenFullscreenEnabled) {
-      const isFs = !!document.fullscreenElement;
-      if (isFs !== isZenMode) {
-        applyZenMode(isFs, false);
-      }
+    const isFs = !!document.fullscreenElement;
+    isFullscreenActive = isFs;
+    if (iconFullscreen) iconFullscreen.textContent = isFs ? 'fullscreen_exit' : 'fullscreen';
+    if (isZenFullscreenEnabled && isFs !== isZenMode) {
+      applyZenMode(isFs, false);
     }
   });
 
@@ -938,8 +1070,22 @@
       return;
     }
 
-    // F11 or Z -> Toggle Zen Mode & Fullscreen (Conceals address bar & omnibox)
-    if (e.key === 'F11' || key === 'z') {
+    // F -> Toggle Immersive Fullscreen
+    if (key === 'f') {
+      e.preventDefault();
+      toggleFullscreen(true);
+      return;
+    }
+
+    // F11 -> Toggle Fullscreen / Window state
+    if (e.key === 'F11') {
+      e.preventDefault();
+      toggleFullscreen(true);
+      return;
+    }
+
+    // Z -> Toggle Zen Mode
+    if (key === 'z') {
       e.preventDefault();
       applyZenMode(!isZenMode, true);
       return;

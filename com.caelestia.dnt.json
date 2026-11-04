@@ -1,0 +1,9 @@
+{
+  "name": "com.caelestia.dnt",
+  "description": "Caelestia-DNT Desktop Bridge Native Messaging Host",
+  "path": "/usr/local/bin/caelestia-native-host",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://*/*"
+  ]
+}
