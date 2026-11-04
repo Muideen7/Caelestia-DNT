@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-transparency="true">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,14 +10,21 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="newtab.css">
   <script>
-    // Critical 0ms render path: apply cached theme & wallpaper BEFORE first paint
-    // to prevent any flash of default colors or delay.
+    // Critical 0ms render path: apply cached theme, wallpaper, zen mode & quote BEFORE first paint
     (function() {
       try {
+        const root = document.documentElement;
+
+        // 1. Immediately apply Zen mode state so dashboard never flashes
+        const isZen = localStorage.getItem('caelestia_zen') !== 'false';
+        if (isZen) {
+          root.classList.add('zen-mode');
+        }
+
+        // 2. Restore cached theme tokens
         const cachedStr = localStorage.getItem('caelestia_cached_theme');
         if (cachedStr) {
           const t = JSON.parse(cachedStr);
-          const root = document.documentElement;
           if (t.mode) root.setAttribute('data-theme', t.mode);
           if (t.transparency === false) root.setAttribute('data-transparency', 'false');
           if (t.colours) {
@@ -31,6 +38,8 @@
             root.style.cssText = css;
           }
         }
+
+        // 3. Set wallpaper immediately on DOM ready
         const cachedWp = localStorage.getItem('caelestia_cached_wallpaper');
         if (cachedWp) {
           document.addEventListener('DOMContentLoaded', function() {
@@ -40,6 +49,8 @@
             }
           });
         }
+
+        // 4. Restore cached quote
         const cachedQuote = localStorage.getItem('caelestia_cached_quote');
         if (cachedQuote) {
           document.addEventListener('DOMContentLoaded', function() {
@@ -48,6 +59,13 @@
               qEl.textContent = cachedQuote;
               qEl.setAttribute('data-quote-loaded', 'true');
             }
+          });
+        }
+
+        // 5. Ensure body element gets zen-mode class on DOM ready
+        if (isZen) {
+          document.addEventListener('DOMContentLoaded', function() {
+            if (document.body) document.body.classList.add('zen-mode');
           });
         }
       } catch (e) {}
@@ -120,12 +138,28 @@
   <main class="main-container" id="mainContainer">
     <!-- Clock & Greeting Widget -->
     <section class="clock-widget" id="clockWidget">
-      <div class="clock-time" id="clockTime">00:00</div>
+      <div class="clock-time" id="clockTime">--:--</div>
       <div class="greeting-row">
         <span class="greeting-text" id="greetingText"><span id="greetingSalutation">Good Day</span>, <span class="greeting-username" id="greetingUsername">FrontendGeek</span></span>
         <span class="greeting-divider">•</span>
-        <span class="date-text" id="dateText">Sunday, November 1</span>
+        <span class="date-text" id="dateText"></span>
       </div>
+      <script>
+        (function() {
+          const now = new Date();
+          const c = document.getElementById('clockTime');
+          if (c) c.textContent = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+          const d = document.getElementById('dateText');
+          if (d) d.textContent = now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+          const h = now.getHours();
+          const s = (h >= 5 && h < 12) ? 'Good Morning' : (h < 17 ? 'Good Afternoon' : (h < 22 ? 'Good Evening' : 'Good Night'));
+          const g = document.getElementById('greetingSalutation');
+          if (g) g.textContent = s;
+          const u = localStorage.getItem('caelestia_username') || 'FrontendGeek';
+          const gu = document.getElementById('greetingUsername');
+          if (gu) gu.textContent = u;
+        })();
+      </script>
       <!-- Daily Thought / Quote -->
       <div class="daily-quote" id="dailyQuote"></div>
     </section>

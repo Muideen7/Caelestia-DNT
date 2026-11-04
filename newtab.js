@@ -628,6 +628,7 @@
   async function applyZenMode(enabled, userTriggered = false) {
     isZenMode = enabled;
     localStorage.setItem('caelestia_zen', String(enabled));
+    document.documentElement.classList.toggle('zen-mode', enabled);
     document.body.classList.toggle('zen-mode', enabled);
     if (btnZenToggle) {
       btnZenToggle.classList.toggle('active', enabled);
