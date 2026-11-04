@@ -16,7 +16,12 @@
     "*://*.reddit.com/*",
     "*://*.wikipedia.org/*",
     "*://*.google.com/*",
-    "*://*.google.co.*/*"
+    "*://*.google.co.uk/*",
+    "*://*.google.co.in/*",
+    "*://*.google.ca/*",
+    "*://*.google.de/*",
+    "*://*.google.fr/*",
+    "*://*.google.co.jp/*"
   ],
   "chrome_url_overrides": {
     "newtab": "newtab.html"
@@ -36,7 +41,12 @@
         "*://*.reddit.com/*",
         "*://*.wikipedia.org/*",
         "*://*.google.com/*",
-        "*://*.google.co.*/*"
+        "*://*.google.co.uk/*",
+        "*://*.google.co.in/*",
+        "*://*.google.ca/*",
+        "*://*.google.de/*",
+        "*://*.google.fr/*",
+        "*://*.google.co.jp/*"
       ],
       "js": [
         "content.js"

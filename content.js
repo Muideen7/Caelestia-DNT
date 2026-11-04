@@ -1163,7 +1163,7 @@
       css = buildYouTubeCSS(colors, isDark);
     } else if (hostname.includes('github.com')) {
       css = buildGitHubCSS(colors, isDark);
-    } else if (hostname.includes('google.com') || hostname.includes('google.co.')) {
+    } else if (hostname.includes('google.com') || hostname.includes('google.co.') || hostname.includes('.google.') || hostname.startsWith('google.')) {
       css = buildGoogleSearchCSS(colors, isDark);
     } else if (hostname.includes('reddit.com')) {
       css = buildRedditCSS(colors, isDark);
