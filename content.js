@@ -1,5 +1,5 @@
 // Caelestia Material You declarative CSS injector
-// Targets YouTube, GitHub, Reddit, and Wikipedia with WCAG AAA readability in both light & dark modes (0% CPU overhead)
+// Targets YouTube, GitHub, Google Search, Reddit, and Wikipedia with WCAG AA readability in both light & dark modes (0% CPU overhead)
 
 (() => {
   'use strict';
@@ -561,6 +561,382 @@
     `;
   }
 
+  function buildGoogleSearchCSS(colors, isDark) {
+    const t = resolveThemeTokens(colors, isDark);
+    const bg = t.bg;
+    const surfaceLow = t.surfaceLow;
+    const surfaceMid = t.surfaceMid;
+    const surfaceHigh = t.surfaceHigh;
+    const surfaceHighest = t.surfaceHighest;
+    const onSurface = t.onSurface;
+    const onSurfaceVar = t.onSurfaceVar;
+    const outline = t.outline;
+    const primary = t.primary;
+    const onPrimary = t.onPrimary;
+    const primContainer = t.primContainer;
+    const onPrimContainer = t.onPrimContainer;
+    const secContainer = t.secContainer;
+    const onSecContainer = t.onSecContainer;
+    const tertiary = t.tertiary;
+    const error = t.error;
+
+    // Compute an accessible link color: use primary but ensure it contrasts well
+    // against the background. Google relies heavily on link blue (#1a0dab light / #8ab4f8 dark).
+    const linkColor = primary;
+    const visitedColor = tertiary;
+
+    return `
+      /* --- Google Search Caelestia Dynamic Styling --- */
+      /* Respect WCAG AA: body text ≥ 4.5:1, large text ≥ 3:1 on themed surfaces */
+
+      /* ===== Root-level background & color overrides ===== */
+      html, body,
+      body.srp,                         /* search results page */
+      #main, #cnt, #center_col,
+      #rcnt, #rhs, #rso,
+      .appbar,
+      #botstuff,
+      .s6JM6d,                          /* main results wrapper (class-based) */
+      .RNNXgb,                          /* old search bar container */
+      .o3j99                            /* newer search wrapper */ {
+        background-color: ${bg} !important;
+        color: ${onSurface} !important;
+      }
+
+      /* ===== Top search bar / header ===== */
+      #searchform,
+      .sfbg,                            /* search form background */
+      .minidiv .sfbg,
+      header[role="banner"],
+      .XDyW0e,                          /* sticky header bar */
+      #hdtb,                            /* tools bar (All, Images, Videos tabs) */
+      #hdtbSum,
+      .sBbkle,
+      .M2vV3,
+      .LcSrBf                           /* newer search bar area */ {
+        background-color: ${surfaceMid} !important;
+        border-color: ${outline} !important;
+        color: ${onSurface} !important;
+      }
+
+      /* Search input box */
+      .RNNXgb, .emcav,
+      .gLFyf,                           /* actual input element */
+      .a4bIc,
+      form[role="search"],
+      .SDkEP,
+      textarea.gLFyf,                   /* new textarea-based input */
+      .o3j99 .qdrjAc,
+      .rFrNMe {
+        background-color: ${surfaceLow} !important;
+        color: ${onSurface} !important;
+        border-color: ${outline} !important;
+      }
+
+      .aajZCb,                          /* suggestions dropdown */
+      .lnXdpd,                          /* suggestion items */
+      .sbct,
+      .OBMEnb,
+      .pcCUmf,
+      .eIPGRd,
+      .CcAdNb                           /* autocomplete container */ {
+        background-color: ${surfaceMid} !important;
+        color: ${onSurface} !important;
+        border-color: ${outline} !important;
+      }
+
+      .sbct:hover, .lnXdpd:hover,
+      .eIPGRd:hover,
+      .pcCUmf:hover {
+        background-color: ${surfaceHigh} !important;
+      }
+
+      /* Search icons (magnifier, voice, lens, X) */
+      .iblpc, .BKRPef,
+      .ExCKkf svg, .BKRPef svg,
+      .XDyW0e svg,
+      .lJ9FBc svg {
+        color: ${onSurfaceVar} !important;
+        fill: ${onSurfaceVar} !important;
+      }
+
+      /* ===== Navigation tabs (All, Images, Videos, News, Maps, Shopping) ===== */
+      .IUOThf,                          /* tab bar */
+      .T47uwc,
+      .NZmxZe,
+      div.crJ18e {
+        border-color: ${outline} !important;
+      }
+
+      .nPDzT,                           /* individual tab */
+      .hdtb-mitem,
+      .YmvwI,
+      .GKS7s {
+        color: ${onSurfaceVar} !important;
+      }
+
+      .nPDzT.q8U8x,                    /* active tab */
+      .hdtb-mitem.hdtb-msel,
+      .YmvwI.sA5qe,
+      .GKS7s.Ww4FFb {
+        color: ${primary} !important;
+        border-bottom-color: ${primary} !important;
+      }
+
+      /* ===== Search result items ===== */
+      /* Result titles (links) — critical for readability */
+      .LC20lb,                          /* main result title */
+      h3.LC20lb,
+      .DKV0Md,
+      .l97dzf h3,
+      .yuRUbf a h3,
+      a h3 {
+        color: ${linkColor} !important;
+      }
+
+      /* Visited result titles */
+      .LC20lb:visited,
+      a:visited h3,
+      a:visited .LC20lb {
+        color: ${visitedColor} !important;
+      }
+
+      /* Result URLs / breadcrumbs */
+      .VuuXrf,                          /* site name */
+      .qLRx3b,                          /* breadcrumb */
+      .NJjxre,
+      cite, cite a,
+      .tjvcx,
+      .apx8Vc,
+      .C8nzq,
+      .byrV5b {
+        color: ${onSurfaceVar} !important;
+      }
+
+      /* Result snippets — body text, must be high-contrast */
+      .VwiC3b,                          /* snippet text */
+      .yXK7lf,
+      .MUxGbd,
+      .lEBKkf,
+      span.st,
+      .IsZvec,
+      .s3v9rd,
+      .yDYNvb,
+      .ITZIwc,
+      .hgKElc {
+        color: ${onSurface} !important;
+      }
+
+      /* Bold text in snippets (matched keywords) */
+      .VwiC3b em, .yXK7lf em,
+      .MUxGbd em, span.st em {
+        color: ${onSurface} !important;
+        font-weight: 700 !important;
+      }
+
+      /* ===== "People also ask" / FAQ dropdowns ===== */
+      .related-question-pair,
+      .dnXCYb,
+      .JolIg,
+      g-accordion-expander,
+      .Wt5Tfe {
+        background-color: ${surfaceLow} !important;
+        border-color: ${outline} !important;
+        color: ${onSurface} !important;
+      }
+
+      .related-question-pair:hover,
+      .dnXCYb:hover {
+        background-color: ${surfaceHigh} !important;
+      }
+
+      .JolIg .DNJxuf, .cbphWd {
+        color: ${onSurface} !important;
+      }
+
+      /* ===== Knowledge panel (right sidebar) ===== */
+      .kp-wholepage, .osrp-blk,
+      .I6TXqe, .kno-rdesc,
+      .kno-ecr-pt, .LGOjhe,
+      .TzHB6b, .wDYxhc,
+      .IVvPP, .liYKde {
+        background-color: ${surfaceLow} !important;
+        border-color: ${outline} !important;
+        color: ${onSurface} !important;
+      }
+
+      .kno-rdesc span,
+      .LGOjhe span,
+      .kno-ecr-pt span,
+      .rVusze {
+        color: ${onSurface} !important;
+      }
+
+      /* Knowledge panel headings */
+      .qrShPb, .kno-ecr-pt .Z0LcW,
+      .SPZz6b h2, .I6TXqe h2 {
+        color: ${onSurface} !important;
+      }
+
+      /* ===== Featured snippet / answer box ===== */
+      .xpdopen, .ifM9O,
+      .co8aDb, .Ap5OSd,
+      .V3FYCf, .LGOjhe,
+      .IZ6rdc, .di3YZe,
+      block-component {
+        background-color: ${surfaceLow} !important;
+        border-color: ${outline} !important;
+        color: ${onSurface} !important;
+      }
+
+      /* ===== Cards, carousels, and content modules ===== */
+      g-card, .cv2VAd,
+      .Ww4FFb, .VjDLd,
+      .ULSxyf, .hlcw0c,
+      .MjjYud, .g,
+      .tF2Cxc, .N54PNb,
+      .IsZvec {
+        background-color: ${bg} !important;
+        color: ${onSurface} !important;
+      }
+
+      /* Image / video thumbnails container backgrounds */
+      .ivg-i, .RAyV4b,
+      .eA0Zlc, .arSljf,
+      g-img {
+        border-color: ${outline} !important;
+      }
+
+      /* ===== Pagination ===== */
+      #foot, .AaVjTc,
+      .fl, .SJajHc,
+      .d6cvqb a, .pla-hccard {
+        background-color: ${bg} !important;
+        color: ${onSurfaceVar} !important;
+      }
+
+      .SJajHc b, .YyVfkd {
+        color: ${primary} !important;
+      }
+
+      /* ===== "Related searches" ===== */
+      .k8XOCe, .s75CSd,
+      .oIk2Cb, .y6Uyqe a,
+      .EIaa9b, .AJLUJb {
+        background-color: ${surfaceLow} !important;
+        border-color: ${outline} !important;
+        color: ${onSurface} !important;
+      }
+
+      .s75CSd:hover, .oIk2Cb:hover,
+      .k8XOCe:hover {
+        background-color: ${surfaceHigh} !important;
+      }
+
+      /* ===== Filter chips / pills ===== */
+      .MUFPAc, .LatpMc,
+      .d3zsgb, .rINcab,
+      .XVdSCb, .EE3Upf,
+      .ClFMFf {
+        background-color: ${surfaceHigh} !important;
+        border: 1px solid ${outline} !important;
+        color: ${onSurface} !important;
+      }
+
+      .MUFPAc[aria-selected="true"],
+      .LatpMc[aria-selected="true"],
+      .XVdSCb.gTewb,
+      .EE3Upf.iSoFgc {
+        background-color: ${primContainer} !important;
+        color: ${onPrimContainer} !important;
+        border-color: ${primary} !important;
+      }
+
+      /* ===== Google Flights / Shopping / special result cards ===== */
+      .pla-unit, .pla-hccard,
+      .sh-dgr__content, .sh-d__grid,
+      .commercial-unit-desktop-top {
+        background-color: ${surfaceLow} !important;
+        border-color: ${outline} !important;
+        color: ${onSurface} !important;
+      }
+
+      /* ===== Buttons (e.g. "More results", "Tools") ===== */
+      .GNJvt, .cUnQKe,
+      .Tg7LZd, .XGqjvb,
+      .YtwC1, .kQdGHd,
+      .RveJvd, .nGxrse {
+        background-color: ${surfaceMid} !important;
+        border-color: ${outline} !important;
+        color: ${onSurface} !important;
+      }
+
+      .GNJvt:hover, .cUnQKe:hover,
+      .Tg7LZd:hover {
+        background-color: ${surfaceHigh} !important;
+      }
+
+      /* CTA-style buttons */
+      .aXBZVd, .goog-inline-block,
+      .action-button {
+        background-color: ${primary} !important;
+        color: ${onPrimary} !important;
+        border-color: ${primary} !important;
+      }
+
+      /* ===== Footer ===== */
+      #footcnt, .fbar, #fbar,
+      .KxwPGc, .FElbsf,
+      .AUOrYb {
+        background-color: ${surfaceLow} !important;
+        border-color: ${outline} !important;
+        color: ${onSurfaceVar} !important;
+      }
+
+      /* ===== Links — scoped to avoid clobbering image/video overlays ===== */
+      #search a:not(.ekf0x):not(.nPDzT),
+      #rso a:not(.ekf0x),
+      .yuRUbf a {
+        color: ${linkColor} !important;
+      }
+
+      #search a:visited:not(.ekf0x):not(.nPDzT),
+      #rso a:visited:not(.ekf0x),
+      .yuRUbf a:visited {
+        color: ${visitedColor} !important;
+      }
+
+      /* ===== Scrollbars ===== */
+      * {
+        scrollbar-color: ${outline} ${surfaceLow} !important;
+      }
+      ::-webkit-scrollbar { width: 8px !important; height: 8px !important; }
+      ::-webkit-scrollbar-track { background: ${surfaceLow} !important; }
+      ::-webkit-scrollbar-thumb { background: ${outline} !important; border-radius: 4px !important; }
+      ::-webkit-scrollbar-thumb:hover { background: ${primary} !important; }
+
+      /* ===== Selection highlighting ===== */
+      ::selection {
+        background-color: ${primContainer} !important;
+        color: ${onPrimContainer} !important;
+      }
+
+      /* ===== Dark mode specific overrides ===== */
+      ${isDark ? `
+        /* Google sometimes inlines white bg on result cards in dark mode */
+        .tF2Cxc, .g, .MjjYud, .hlcw0c,
+        .N54PNb, .IsZvec, .xpd {
+          background-color: ${bg} !important;
+        }
+
+        /* Ensure images/icons don't get inverted */
+        img, video, svg:not(.XDyW0e svg) {
+          filter: none !important;
+        }
+      ` : ''}
+    `;
+  }
+
   function buildWikipediaCSS(colors, isDark) {
     const t = resolveThemeTokens(colors, isDark);
     const bg = t.bg;
@@ -787,6 +1163,8 @@
       css = buildYouTubeCSS(colors, isDark);
     } else if (hostname.includes('github.com')) {
       css = buildGitHubCSS(colors, isDark);
+    } else if (hostname.includes('google.com') || hostname.includes('google.co.')) {
+      css = buildGoogleSearchCSS(colors, isDark);
     } else if (hostname.includes('reddit.com')) {
       css = buildRedditCSS(colors, isDark);
     } else if (hostname.includes('wikipedia.org')) {
