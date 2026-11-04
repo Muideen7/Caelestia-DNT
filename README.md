@@ -11,8 +11,10 @@ Material You new tab & site themer that syncs with your Linux wallpaper palette.
 </p>
 
 <p align="center">
-<a href="#install"><strong>Install</strong></a> · <a href="#keyboard-shortcuts"><strong>Keys</strong></a> · <a href="#site-theming"><strong>Site Theming</strong></a> · <a href="#fullscreen-strategies"><strong>Fullscreen</strong></a> · <a href="#privacy"><strong>Privacy</strong></a>
+<a href="#screenshots"><strong>Screenshots</strong></a> · <a href="#install"><strong>Install</strong></a> · <a href="#keyboard-shortcuts"><strong>Keys</strong></a> · <a href="#site-theming"><strong>Site Theming</strong></a> · <a href="#fullscreen-strategies"><strong>Fullscreen</strong></a> · <a href="#privacy"><strong>Privacy</strong></a>
 </p>
+
+<img src="screenshots/zen-mode.png" alt="Caelestia-DNT Zen Mode" width="100%">
 
 ---
 
@@ -22,6 +24,25 @@ Material You new tab & site themer that syncs with your Linux wallpaper palette.
 - New tab has Zen mode (clock + quote), a dashboard (shortcuts, tasks, scratchpad), and a quick search overlay.
 - Injects your palette into **YouTube**, **GitHub**, **Google Search**, **Reddit**, and **Wikipedia** — readable, accessible, no layout breakage.
 - Tiling-aware fullscreen that respects your gaps, bars, and columns instead of hijacking the monitor.
+
+---
+
+## Screenshots
+
+### 1. Zen Mode (<kbd>Z</kbd>)
+Minimalist distraction-free clock, greeting, and quotes over your dynamic wallpaper.
+
+<img src="screenshots/zen-mode.png" alt="Zen Mode" width="100%">
+
+### 2. Dashboard Mode (Zen Mode Off)
+Full productivity dashboard with quick shortcuts, daily task checklist, and auto-saving scratchpad.
+
+<img src="screenshots/dashboard-mode.png" alt="Dashboard Mode" width="100%">
+
+### 3. Quick Search Overlay (<kbd>S</kbd> or <kbd>/</kbd>)
+Instant floating search with engine switcher (Google, Brave, DuckDuckGo, YouTube, Wikipedia).
+
+<img src="screenshots/search-mode.png" alt="Search Input Field" width="100%">
 
 ---
 
