@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+ #!/usr/bin/env bash
 # install-native-host.sh - Register Caelestia-DNT Native Messaging Host
 # Supports Chromium, Google Chrome, Brave, Thorium, Microsoft Edge, and Vivaldi.
 
